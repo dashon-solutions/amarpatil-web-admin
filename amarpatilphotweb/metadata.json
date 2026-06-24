@@ -1,0 +1,6 @@
+{
+  "name": "Luxury Editorial Website",
+  "description": "A premium, modern luxury brand directory and editorial website inspired by high-end fashion magazines and timeless aesthetics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

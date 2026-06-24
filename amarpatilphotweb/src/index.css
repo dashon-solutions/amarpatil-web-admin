@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Anek+Gujarati:wght@100..800&family=Playfair+Display:wght@400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-navy-dark: #0E4F44;
+  --color-gold-warm: #D4A017;
+  --color-luxury-cream: #FAF9F6;
+  --color-luxury-dark: #121315;
+
+  /* Fonts */
+  --font-primary: "Poppins", "Anek Gujarati", system-ui, sans-serif;
+  --font-secondary: "Playfair Display", Georgia, serif;
+
+  --font-sans: var(--font-primary);
+  --font-serif: var(--font-secondary);
+  --font-anek: "Anek Gujarati", sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    background-color: #FFFFFF;
+    color: #0B1D4A;
+  }
+
+  body {
+    font-family: var(--font-primary);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-secondary);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background-color: #0B1D4A;
+    color: #FAF9F6;
+  }
+}
+
+/* Premium scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FFFFFF;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #E89A3D;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0B1D4A;
+}
