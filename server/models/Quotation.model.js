@@ -40,6 +40,24 @@ const quotationSchema = new mongoose.Schema({
   terms: {
     type: String,
   },
+  termsList: {
+    type: [String],
+    default: [],
+  },
+  scopeOfServices: {
+    type: [String],
+    default: [],
+  },
+  deliverables: {
+    type: [String],
+    default: [],
+  },
+  timeline: [
+    {
+      label: { type: String },
+      value: { type: String }
+    }
+  ],
   status: {
     type: String,
     enum: ["draft", "sent", "accepted", "rejected"],

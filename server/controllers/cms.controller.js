@@ -29,6 +29,11 @@ exports.updateSiteSettings = async (req, res) => {
     if (typeof updateData.socialLinks === 'string') updateData.socialLinks = JSON.parse(updateData.socialLinks);
     if (typeof updateData.meta === 'string') updateData.meta = JSON.parse(updateData.meta);
     if (typeof updateData.termsAndConditions === 'string') updateData.termsAndConditions = JSON.parse(updateData.termsAndConditions);
+    if (typeof updateData.bankDetails === 'string') updateData.bankDetails = JSON.parse(updateData.bankDetails);
+    if (typeof updateData.colors === 'string') updateData.colors = JSON.parse(updateData.colors);
+    if (typeof updateData.defaultScopeOfServices === 'string') updateData.defaultScopeOfServices = JSON.parse(updateData.defaultScopeOfServices);
+    if (typeof updateData.defaultDeliverables === 'string') updateData.defaultDeliverables = JSON.parse(updateData.defaultDeliverables);
+    if (typeof updateData.defaultTimelines === 'string') updateData.defaultTimelines = JSON.parse(updateData.defaultTimelines);
 
     if (updateData.showTeam !== undefined) {
       updateData.showTeam = updateData.showTeam === 'true' || updateData.showTeam === true;
@@ -39,6 +44,7 @@ exports.updateSiteSettings = async (req, res) => {
       if (req.files.logo && req.files.logo[0]) updateData.logo = req.files.logo[0].cloudinaryUrl;
       if (req.files.stamp && req.files.stamp[0]) updateData.stamp = req.files.stamp[0].cloudinaryUrl;
       if (req.files.signature && req.files.signature[0]) updateData.signature = req.files.signature[0].cloudinaryUrl;
+      if (req.files.qrCode && req.files.qrCode[0]) updateData.qrCode = req.files.qrCode[0].cloudinaryUrl;
     }
 
     const settings = await SiteSettings.findOneAndUpdate({}, updateData, { new: true, upsert: true });

@@ -12,8 +12,8 @@ const schemas = {};
 // Override connection model method to automatically compile schemas on tenant connections during population
 const originalConnectionModel = mongoose.Connection.prototype.model;
 mongoose.Connection.prototype.model = function (name, schema, collection) {
-  if (!schema && !this.models[name] && schemas[name]) {
-    schema = schemas[name];
+  if (!schema && !this.models[name]) {
+    schema = schemas[name] || mongoose.modelSchemas[name] || (mongoose.models[name] && mongoose.models[name].schema);
   }
   return originalConnectionModel.call(this, name, schema, collection);
 };
