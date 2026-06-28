@@ -13,10 +13,12 @@ export default function QuotationForm({ isOpen, onClose, lead, onQuotationCreate
   const [availableScopes, setAvailableScopes] = useState([]);
   const [availableDeliverables, setAvailableDeliverables] = useState([]);
   const [availableTimelines, setAvailableTimelines] = useState([]);
+  const [availableTerms, setAvailableTerms] = useState([]);
 
   const [selectedScopes, setSelectedScopes] = useState([]);
   const [selectedDeliverables, setSelectedDeliverables] = useState([]);
   const [selectedTimelines, setSelectedTimelines] = useState([]);
+  const [selectedTerms, setSelectedTerms] = useState([]);
 
   useEffect(() => {
     if (isOpen) {
@@ -24,7 +26,9 @@ export default function QuotationForm({ isOpen, onClose, lead, onQuotationCreate
         .then(({ data }) => {
           if (data) {
             if (data.termsAndConditions) {
-              setTerms(data.termsAndConditions.join("\n"));
+              setAvailableTerms(data.termsAndConditions);
+              setSelectedTerms(data.termsAndConditions);
+              setTerms("");
             }
             if (data.defaultScopeOfServices) {
               setAvailableScopes(data.defaultScopeOfServices);
@@ -66,6 +70,12 @@ export default function QuotationForm({ isOpen, onClose, lead, onQuotationCreate
     );
   };
 
+  const handleToggleTerm = (term) => {
+    setSelectedTerms(prev =>
+      prev.includes(term) ? prev.filter(t => t !== term) : [...prev, term]
+    );
+  };
+
   const subtotal = items.reduce((acc, item) => acc + (parseFloat(item.price) || 0), 0);
   const gstAmount = gstEnabled ? subtotal * 0.18 : 0;
   const total = subtotal + gstAmount;
@@ -94,11 +104,15 @@ export default function QuotationForm({ isOpen, onClose, lead, onQuotationCreate
 
     setStatus("sending");
     try {
+      const extraCustomTerms = terms.split("\n").map(t => t.trim()).filter(Boolean);
+      const compiledTermsList = [...selectedTerms, ...extraCustomTerms];
+
       const payload = {
         leadId: lead._id,
         items: items.map(i => ({ title: i.title, price: parseFloat(i.price) })),
         gstEnabled,
-        terms,
+        terms: compiledTermsList.join("\n"),
+        termsList: compiledTermsList,
         scopeOfServices: selectedScopes,
         deliverables: selectedDeliverables,
         timeline: selectedTimelines,
@@ -279,13 +293,31 @@ export default function QuotationForm({ isOpen, onClose, lead, onQuotationCreate
 
                 <div className="border-t border-slate-200 dark:border-slate-800 pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Terms &amp; Conditions (One per line)</label>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Terms &amp; Conditions Selection</label>
+                    {availableTerms.length > 0 ? (
+                      <div className="space-y-2 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800 max-h-40 overflow-y-auto mb-3">
+                        {availableTerms.map((term, idx) => (
+                          <label key={idx} className="flex items-start gap-2.5 text-xs text-slate-600 dark:text-slate-400 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200">
+                            <input
+                              type="checkbox"
+                              checked={selectedTerms.includes(term)}
+                              onChange={() => handleToggleTerm(term)}
+                              className="mt-0.5 rounded text-cyan-600 focus:ring-cyan-500 border-slate-300 dark:border-slate-700"
+                            />
+                            <span>{term}</span>
+                          </label>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-slate-400 dark:text-slate-500 text-xs italic mb-2">No default terms configured in settings.</p>
+                    )}
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Additional Custom Terms (one per line)</label>
                     <textarea
-                      rows={5}
+                      rows={3}
                       value={terms}
                       onChange={(e) => setTerms(e.target.value)}
-                      placeholder="Enter terms and conditions (one per line)..."
-                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white px-3 py-2 rounded-lg text-sm outline-none focus:border-cyan-500 resize-none"
+                      placeholder="Add any extra terms specific to this quotation..."
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white px-3 py-2 rounded-lg text-xs outline-none focus:border-cyan-500 resize-none"
                     ></textarea>
                   </div>
 

@@ -3,6 +3,110 @@ import { toast } from "react-toastify";
 import { Save, Image as ImageIcon } from "lucide-react";
 import axiosInstance from "../../utils/axiosInstance";
 
+const ListBuilder = ({ title, items, onAdd, onDelete, placeholder }) => {
+  const [input, setInput] = React.useState("");
+  const handleAdd = () => {
+    if (input.trim()) {
+      onAdd(input.trim());
+      setInput("");
+    }
+  };
+  return (
+    <div className="space-y-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+      <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">{title}</label>
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder={placeholder}
+          onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAdd())}
+          className="flex-1 px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:border-cyan-500"
+        />
+        <button
+          type="button"
+          onClick={handleAdd}
+          className="px-4 py-1.5 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-xs font-bold transition-colors"
+        >
+          Add
+        </button>
+      </div>
+      <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+        {items.map((item, idx) => (
+          <div key={idx} className="flex justify-between items-center bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-xs">
+            <span className="text-slate-700 dark:text-slate-300">{item}</span>
+            <button
+              type="button"
+              onClick={() => onDelete(idx)}
+              className="text-red-500 hover:text-red-600 font-bold transition ml-2"
+            >
+              Remove
+            </button>
+          </div>
+        ))}
+        {items.length === 0 && <p className="text-slate-400 dark:text-slate-500 text-xs italic">No items added yet.</p>}
+      </div>
+    </div>
+  );
+};
+
+const TimelineBuilder = ({ title, items, onAdd, onDelete }) => {
+  const [label, setLabel] = React.useState("");
+  const [val, setVal] = React.useState("");
+  const handleAdd = () => {
+    if (label.trim() && val.trim()) {
+      onAdd({ label: label.trim(), value: val.trim() });
+      setLabel("");
+      setVal("");
+    }
+  };
+  return (
+    <div className="space-y-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+      <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">{title}</label>
+      <div className="grid grid-cols-2 gap-2">
+        <input
+          type="text"
+          value={label}
+          onChange={(e) => setLabel(e.target.value)}
+          placeholder="e.g. Edited Photos"
+          className="px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:border-cyan-500"
+        />
+        <input
+          type="text"
+          value={val}
+          onChange={(e) => setVal(e.target.value)}
+          placeholder="e.g. 20 photos — same day"
+          className="px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:border-cyan-500"
+        />
+      </div>
+      <button
+        type="button"
+        onClick={handleAdd}
+        className="w-full py-1.5 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-xs font-bold transition-colors"
+      >
+        Add Timeline Rule
+      </button>
+      <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+        {items.map((item, idx) => (
+          <div key={idx} className="flex justify-between items-center bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-xs">
+            <div className="text-slate-700 dark:text-slate-300">
+              <strong className="text-slate-900 dark:text-white">{item.label}:</strong> {item.value}
+            </div>
+            <button
+              type="button"
+              onClick={() => onDelete(idx)}
+              className="text-red-500 hover:text-red-600 font-bold transition ml-2"
+            >
+              Remove
+            </button>
+          </div>
+        ))}
+        {items.length === 0 && <p className="text-slate-400 dark:text-slate-500 text-xs italic">No timelines added yet.</p>}
+      </div>
+    </div>
+  );
+};
+
 const SiteSettings = () => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -12,14 +116,14 @@ const SiteSettings = () => {
     meta: { title: "", description: "", keywords: [] },
     bankDetails: { accountName: "", bankName: "", accountNumber: "", ifscCode: "", upiId: "" },
     colors: { primary: "#6B1F2A", secondary: "#4A1620", accent: "#B8924A" },
-    termsAndConditions: "",
-    defaultScopeOfServices: "",
-    defaultDeliverables: "",
-    defaultTimelines: "",
+    termsAndConditions: [],
+    defaultScopeOfServices: [],
+    defaultDeliverables: [],
+    defaultTimelines: [],
     showTeam: true,
   });
-  const [files, setFiles] = useState({ logo: null, stamp: null, signature: null });
-  const [previews, setPreviews] = useState({ logo: "", stamp: "", signature: "" });
+  const [files, setFiles] = useState({ logo: null, stamp: null, signature: null, qrCode: null });
+  const [previews, setPreviews] = useState({ logo: "", stamp: "", signature: "", qrCode: "" });
 
   useEffect(() => {
     fetchSettings();
@@ -36,21 +140,36 @@ const SiteSettings = () => {
           meta: data.meta || { title: "", description: "", keywords: [] },
           bankDetails: data.bankDetails || { accountName: "", bankName: "", accountNumber: "", ifscCode: "", upiId: "" },
           colors: data.colors || { primary: "#6B1F2A", secondary: "#4A1620", accent: "#B8924A" },
-          termsAndConditions: data.termsAndConditions ? data.termsAndConditions.join("\n") : "",
-          defaultScopeOfServices: data.defaultScopeOfServices ? data.defaultScopeOfServices.join("\n") : "",
-          defaultDeliverables: data.defaultDeliverables ? data.defaultDeliverables.join("\n") : "",
-          defaultTimelines: data.defaultTimelines ? data.defaultTimelines.map(t => `${t.label}: ${t.value}`).join("\n") : "",
+          termsAndConditions: data.termsAndConditions || [],
+          defaultScopeOfServices: data.defaultScopeOfServices || [],
+          defaultDeliverables: data.defaultDeliverables || [],
+          defaultTimelines: data.defaultTimelines || [],
           showTeam: data.showTeam !== undefined ? data.showTeam : true
         });
         setPreviews({
           logo: data.logo || "",
           stamp: data.stamp || "",
-          signature: data.signature || ""
+          signature: data.signature || "",
+          qrCode: data.qrCode || ""
         });
       }
     } catch (error) {
       toast.error("Failed to load settings.");
     }
+  };
+
+  const handleAddListItem = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: [...prev[field], value]
+    }));
+  };
+
+  const handleDeleteListItem = (field, index) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: prev[field].filter((_, idx) => idx !== index)
+    }));
   };
 
   const handleFileChange = (e, field) => {
@@ -89,25 +208,17 @@ const SiteSettings = () => {
       data.append("meta", JSON.stringify(formData.meta));
       data.append("bankDetails", JSON.stringify(formData.bankDetails));
       data.append("colors", JSON.stringify(formData.colors));
-      data.append("termsAndConditions", JSON.stringify(formData.termsAndConditions.split("\n").map(t => t.trim()).filter(Boolean)));
-      data.append("defaultScopeOfServices", JSON.stringify(formData.defaultScopeOfServices.split("\n").map(t => t.trim()).filter(Boolean)));
-      data.append("defaultDeliverables", JSON.stringify(formData.defaultDeliverables.split("\n").map(t => t.trim()).filter(Boolean)));
-      
-      const parsedTimelines = formData.defaultTimelines.split("\n").map(line => {
-        const idx = line.indexOf(":");
-        if (idx === -1) return { label: line.trim(), value: "" };
-        return {
-          label: line.substring(0, idx).trim(),
-          value: line.substring(idx + 1).trim()
-        };
-      }).filter(t => t.label);
-      data.append("defaultTimelines", JSON.stringify(parsedTimelines));
+      data.append("termsAndConditions", JSON.stringify(formData.termsAndConditions));
+      data.append("defaultScopeOfServices", JSON.stringify(formData.defaultScopeOfServices));
+      data.append("defaultDeliverables", JSON.stringify(formData.defaultDeliverables));
+      data.append("defaultTimelines", JSON.stringify(formData.defaultTimelines));
 
       data.append("showTeam", formData.showTeam);
 
       if (files.logo) data.append("logo", files.logo);
       if (files.stamp) data.append("stamp", files.stamp);
       if (files.signature) data.append("signature", files.signature);
+      if (files.qrCode) data.append("qrCode", files.qrCode);
 
       await axiosInstance.put("/cms/site-settings", data, {
         headers: { "Content-Type": "multipart/form-data" }
@@ -234,51 +345,36 @@ const SiteSettings = () => {
               </div>
             </div>
 
-            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mt-8 mb-4">Default Terms &amp; Conditions</h3>
-            <p className="text-slate-500 text-xs mb-4">Add terms and conditions to be populated automatically on new quotations (one bullet per line).</p>
-            <div>
-              <textarea
-                rows="5"
-                value={formData.termsAndConditions}
-                onChange={(e) => handleChange(e, null, 'termsAndConditions')}
-                placeholder="Enter default terms here (one per line)..."
-                className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-cyan-500 text-sm resize-none"
-              ></textarea>
-            </div>
-
-            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mt-8 mb-4">Default Scope &amp; Deliverables</h3>
-            <p className="text-slate-500 text-xs mb-4">Set up default scope templates (one item per line) which you can check/uncheck during quotation creation.</p>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wider">Default Scope of Services (one per line)</label>
-                <textarea
-                  rows="4"
-                  value={formData.defaultScopeOfServices}
-                  onChange={(e) => handleChange(e, null, 'defaultScopeOfServices')}
-                  placeholder="e.g. Professional wedding day photography&#10;Cinematic wedding film&#10;Drone video coverage..."
-                  className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-cyan-500 text-sm resize-none"
-                ></textarea>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wider">Default Deliverables (one per line)</label>
-                <textarea
-                  rows="4"
-                  value={formData.defaultDeliverables}
-                  onChange={(e) => handleChange(e, null, 'defaultDeliverables')}
-                  placeholder="e.g. Cinematic wedding film (20-30 mins)&#10;High-resolution edited photos (20 same-day, full set later)&#10;Album design & printing..."
-                  className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-cyan-500 text-sm resize-none"
-                ></textarea>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wider">Default Timelines (Format: label : value, one per line)</label>
-                <textarea
-                  rows="4"
-                  value={formData.defaultTimelines}
-                  onChange={(e) => handleChange(e, null, 'defaultTimelines')}
-                  placeholder="e.g. Edited Photos : 20 photos — same / next day&#10;Cinematic Film : 20-30 working days&#10;Printed Album : 30 working days after selection..."
-                  className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-cyan-500 text-sm resize-none"
-                ></textarea>
-              </div>
+            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mt-8 mb-4">Default Quotation Content Lists</h3>
+            <p className="text-slate-500 text-xs mb-4">Manage the terms, scope, deliverables, and timelines that you can selectively toggle when generating Quotation documents.</p>
+            <div className="space-y-6">
+              <ListBuilder
+                title="Default Terms &amp; Conditions (One by One)"
+                items={formData.termsAndConditions}
+                onAdd={(val) => handleAddListItem("termsAndConditions", val)}
+                onDelete={(idx) => handleDeleteListItem("termsAndConditions", idx)}
+                placeholder="e.g. Booking is confirmed only after advance payment..."
+              />
+              <ListBuilder
+                title="Default Scope of Services (One by One)"
+                items={formData.defaultScopeOfServices}
+                onAdd={(val) => handleAddListItem("defaultScopeOfServices", val)}
+                onDelete={(idx) => handleDeleteListItem("defaultScopeOfServices", idx)}
+                placeholder="e.g. Professional candid photography..."
+              />
+              <ListBuilder
+                title="Default Deliverables (One by One)"
+                items={formData.defaultDeliverables}
+                onAdd={(val) => handleAddListItem("defaultDeliverables", val)}
+                onDelete={(idx) => handleDeleteListItem("defaultDeliverables", idx)}
+                placeholder="e.g. 20 same-day edited photos..."
+              />
+              <TimelineBuilder
+                title="Default Timelines (One by One)"
+                items={formData.defaultTimelines}
+                onAdd={(val) => handleAddListItem("defaultTimelines", val)}
+                onDelete={(idx) => handleDeleteListItem("defaultTimelines", idx)}
+              />
             </div>
           </div>
         </div>
@@ -318,6 +414,18 @@ const SiteSettings = () => {
                 <div className="text-slate-400 flex flex-col items-center"><ImageIcon className="w-8 h-8 mb-2" /><span>Upload Signature</span></div>
               )}
               <input type="file" onChange={(e) => handleFileChange(e, 'signature')} className="absolute inset-0 opacity-0 cursor-pointer" />
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 text-center">
+            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-4 text-left">Payment QR Code Image</h3>
+            <div className="h-32 bg-slate-100 dark:bg-slate-800 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 flex flex-col items-center justify-center overflow-hidden relative cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+              {previews.qrCode ? (
+                <img src={previews.qrCode} alt="QR Code" className="h-full object-contain p-2" />
+              ) : (
+                <div className="text-slate-400 flex flex-col items-center"><ImageIcon className="w-8 h-8 mb-2" /><span>Upload QR Code Image</span></div>
+              )}
+              <input type="file" onChange={(e) => handleFileChange(e, 'qrCode')} className="absolute inset-0 opacity-0 cursor-pointer" />
             </div>
           </div>
         </div>
