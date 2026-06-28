@@ -39,8 +39,7 @@ function App() {
       <Router>
         <Routes>
           {/* Public Routes */}
-          <Route element={<PublicLayout />}>
-            <Route path="/" element={<Login />} />
+          {/* <Route element={<PublicLayout />}>
 
             <Route path="/home" element={<Home />} />
             <Route path="/about" element={<About />} />
@@ -49,7 +48,7 @@ function App() {
             <Route path="/story/:slug" element={<StoryDetails />} />
             <Route path="/packages" element={<PublicPackages />} />
             <Route path="/contact" element={<Contact />} />
-          </Route>
+          </Route> */}
 
           {/* Auth Routes */}
           <Route path="/login" element={<Login />} />
