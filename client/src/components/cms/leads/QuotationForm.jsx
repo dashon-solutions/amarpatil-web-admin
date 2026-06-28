@@ -8,6 +8,21 @@ export default function QuotationForm({ isOpen, onClose, lead, onQuotationCreate
   const [items, setItems] = useState([{ title: "", price: "" }]);
   const [gstEnabled, setGstEnabled] = useState(false);
   const [status, setStatus] = useState("idle");
+  const [terms, setTerms] = useState("");
+
+  useEffect(() => {
+    if (isOpen) {
+      axiosInstance.get("/cms/site-settings")
+        .then(({ data }) => {
+          if (data && data.termsAndConditions) {
+            setTerms(data.termsAndConditions.join("\n"));
+          }
+        })
+        .catch(err => {
+          console.error("Failed to load default terms: ", err);
+        });
+    }
+  }, [isOpen]);
 
   const subtotal = items.reduce((acc, item) => acc + (parseFloat(item.price) || 0), 0);
   const gstAmount = gstEnabled ? subtotal * 0.18 : 0;
@@ -41,6 +56,7 @@ export default function QuotationForm({ isOpen, onClose, lead, onQuotationCreate
         leadId: lead._id,
         items: items.map(i => ({ title: i.title, price: parseFloat(i.price) })),
         gstEnabled,
+        terms,
       };
 
       const res = await axiosInstance.post("/quotations", payload);
@@ -141,32 +157,45 @@ export default function QuotationForm({ isOpen, onClose, lead, onQuotationCreate
                   </button>
                 </div>
 
-                <div className="border-t border-slate-200 dark:border-slate-800 pt-6">
-                  <div className="flex justify-end mb-4">
-                    <label className="flex items-center cursor-pointer">
-                      <div className="relative">
-                        <input type="checkbox" className="sr-only" checked={gstEnabled} onChange={() => setGstEnabled(!gstEnabled)} />
-                        <div className={`block w-10 h-6 rounded-full transition-colors ${gstEnabled ? 'bg-cyan-500' : 'bg-slate-300 dark:bg-slate-700'}`}></div>
-                        <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${gstEnabled ? 'transform translate-x-4' : ''}`}></div>
-                      </div>
-                      <span className="ml-3 font-bold text-sm text-slate-700 dark:text-slate-300 uppercase tracking-widest">Include 18% GST</span>
-                    </label>
+                <div className="border-t border-slate-200 dark:border-slate-800 pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Terms &amp; Conditions (One per line)</label>
+                    <textarea
+                      rows={5}
+                      value={terms}
+                      onChange={(e) => setTerms(e.target.value)}
+                      placeholder="Enter terms and conditions (one per line)..."
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white px-3 py-2 rounded-lg text-sm outline-none focus:border-cyan-500 resize-none"
+                    ></textarea>
                   </div>
 
-                  <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-5 w-full md:w-1/2 ml-auto space-y-3">
-                    <div className="flex justify-between text-slate-500">
-                      <span>Subtotal</span>
-                      <span className="font-medium text-slate-900 dark:text-white">Rs. {subtotal.toFixed(2)}</span>
+                  <div className="space-y-4">
+                    <div className="flex justify-end">
+                      <label className="flex items-center cursor-pointer">
+                        <div className="relative">
+                          <input type="checkbox" className="sr-only" checked={gstEnabled} onChange={() => setGstEnabled(!gstEnabled)} />
+                          <div className={`block w-10 h-6 rounded-full transition-colors ${gstEnabled ? 'bg-cyan-500' : 'bg-slate-300 dark:bg-slate-700'}`}></div>
+                          <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${gstEnabled ? 'transform translate-x-4' : ''}`}></div>
+                        </div>
+                        <span className="ml-3 font-bold text-sm text-slate-700 dark:text-slate-300 uppercase tracking-widest">Include 18% GST</span>
+                      </label>
                     </div>
-                    {gstEnabled && (
-                      <div className="flex justify-between text-slate-500 border-b border-slate-200 dark:border-slate-800 pb-3">
-                        <span>GST (18%)</span>
-                        <span className="font-medium text-slate-900 dark:text-white">Rs. {gstAmount.toFixed(2)}</span>
+
+                    <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-5 w-full space-y-3">
+                      <div className="flex justify-between text-slate-500">
+                        <span>Subtotal</span>
+                        <span className="font-medium text-slate-900 dark:text-white">Rs. {subtotal.toFixed(2)}</span>
                       </div>
-                    )}
-                    <div className={`flex justify-between font-black text-lg ${!gstEnabled && 'border-t border-slate-200 dark:border-slate-800 pt-3'}`}>
-                      <span className="text-slate-900 dark:text-white">Total</span>
-                      <span className="text-cyan-500">Rs. {total.toFixed(2)}</span>
+                      {gstEnabled && (
+                        <div className="flex justify-between text-slate-500 border-b border-slate-200 dark:border-slate-800 pb-3">
+                          <span>GST (18%)</span>
+                          <span className="font-medium text-slate-900 dark:text-white">Rs. {gstAmount.toFixed(2)}</span>
+                        </div>
+                      )}
+                      <div className={`flex justify-between font-black text-lg ${!gstEnabled && 'border-t border-slate-200 dark:border-slate-800 pt-3'}`}>
+                        <span className="text-slate-900 dark:text-white">Total</span>
+                        <span className="text-cyan-500">Rs. {total.toFixed(2)}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
