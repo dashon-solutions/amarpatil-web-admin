@@ -49,6 +49,7 @@ function App() {
             <Route path="/packages" element={<PublicPackages />} />
             <Route path="/contact" element={<Contact />} />
           </Route> */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
 
           {/* Auth Routes */}
           <Route path="/login" element={<Login />} />
