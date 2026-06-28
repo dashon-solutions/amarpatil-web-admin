@@ -10,19 +10,61 @@ export default function QuotationForm({ isOpen, onClose, lead, onQuotationCreate
   const [status, setStatus] = useState("idle");
   const [terms, setTerms] = useState("");
 
+  const [availableScopes, setAvailableScopes] = useState([]);
+  const [availableDeliverables, setAvailableDeliverables] = useState([]);
+  const [availableTimelines, setAvailableTimelines] = useState([]);
+
+  const [selectedScopes, setSelectedScopes] = useState([]);
+  const [selectedDeliverables, setSelectedDeliverables] = useState([]);
+  const [selectedTimelines, setSelectedTimelines] = useState([]);
+
   useEffect(() => {
     if (isOpen) {
       axiosInstance.get("/cms/site-settings")
         .then(({ data }) => {
-          if (data && data.termsAndConditions) {
-            setTerms(data.termsAndConditions.join("\n"));
+          if (data) {
+            if (data.termsAndConditions) {
+              setTerms(data.termsAndConditions.join("\n"));
+            }
+            if (data.defaultScopeOfServices) {
+              setAvailableScopes(data.defaultScopeOfServices);
+              setSelectedScopes(data.defaultScopeOfServices);
+            }
+            if (data.defaultDeliverables) {
+              setAvailableDeliverables(data.defaultDeliverables);
+              setSelectedDeliverables(data.defaultDeliverables);
+            }
+            if (data.defaultTimelines) {
+              setAvailableTimelines(data.defaultTimelines);
+              setSelectedTimelines(data.defaultTimelines);
+            }
           }
         })
         .catch(err => {
-          console.error("Failed to load default terms: ", err);
+          console.error("Failed to load default settings: ", err);
         });
     }
   }, [isOpen]);
+
+  const handleToggleScope = (scope) => {
+    setSelectedScopes(prev =>
+      prev.includes(scope) ? prev.filter(s => s !== scope) : [...prev, scope]
+    );
+  };
+
+  const handleToggleDeliverable = (deliv) => {
+    setSelectedDeliverables(prev =>
+      prev.includes(deliv) ? prev.filter(d => d !== deliv) : [...prev, deliv]
+    );
+  };
+
+  const handleToggleTimeline = (timeItem) => {
+    setSelectedTimelines(prev =>
+      prev.some(t => t.label === timeItem.label)
+        ? prev.filter(t => t.label !== timeItem.label)
+        : [...prev, timeItem]
+    );
+  };
 
   const subtotal = items.reduce((acc, item) => acc + (parseFloat(item.price) || 0), 0);
   const gstAmount = gstEnabled ? subtotal * 0.18 : 0;
@@ -57,6 +99,9 @@ export default function QuotationForm({ isOpen, onClose, lead, onQuotationCreate
         items: items.map(i => ({ title: i.title, price: parseFloat(i.price) })),
         gstEnabled,
         terms,
+        scopeOfServices: selectedScopes,
+        deliverables: selectedDeliverables,
+        timeline: selectedTimelines,
       };
 
       const res = await axiosInstance.post("/quotations", payload);
@@ -156,6 +201,81 @@ export default function QuotationForm({ isOpen, onClose, lead, onQuotationCreate
                     <Plus className="w-4 h-4 mr-1" /> Add Another Item
                   </button>
                 </div>
+
+                {/* Scope & Deliverables Selection */}
+                {(availableScopes.length > 0 || availableDeliverables.length > 0 || availableTimelines.length > 0) && (
+                  <div className="border-t border-slate-200 dark:border-slate-800 pt-6">
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-2 mb-4 uppercase tracking-wider">
+                      Scope of Services &amp; Deliverables
+                    </h3>
+                    <p className="text-xs text-slate-500 mb-4">Check the items you want to include in this quotation PDF.</p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Scope list */}
+                      {availableScopes.length > 0 && (
+                        <div>
+                          <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest mb-3">Scope of Services</h4>
+                          <div className="space-y-2 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800 max-h-48 overflow-y-auto">
+                            {availableScopes.map((scope, idx) => (
+                              <label key={idx} className="flex items-start gap-2.5 text-xs text-slate-600 dark:text-slate-400 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedScopes.includes(scope)}
+                                  onChange={() => handleToggleScope(scope)}
+                                  className="mt-0.5 rounded text-cyan-600 focus:ring-cyan-500 border-slate-300 dark:border-slate-700"
+                                />
+                                <span>{scope}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Deliverables list */}
+                      {availableDeliverables.length > 0 && (
+                        <div>
+                          <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest mb-3">Deliverables</h4>
+                          <div className="space-y-2 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800 max-h-48 overflow-y-auto">
+                            {availableDeliverables.map((deliv, idx) => (
+                              <label key={idx} className="flex items-start gap-2.5 text-xs text-slate-600 dark:text-slate-400 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedDeliverables.includes(deliv)}
+                                  onChange={() => handleToggleDeliverable(deliv)}
+                                  className="mt-0.5 rounded text-cyan-600 focus:ring-cyan-500 border-slate-300 dark:border-slate-700"
+                                />
+                                <span>{deliv}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Timelines list */}
+                      {availableTimelines.length > 0 && (
+                        <div className="md:col-span-2">
+                          <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest mb-3">Timeline Specifications</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800 max-h-48 overflow-y-auto">
+                            {availableTimelines.map((time, idx) => (
+                              <label key={idx} className="flex items-start gap-2.5 text-xs text-slate-600 dark:text-slate-400 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedTimelines.some(t => t.label === time.label)}
+                                  onChange={() => handleToggleTimeline(time)}
+                                  className="mt-0.5 rounded text-cyan-600 focus:ring-cyan-500 border-slate-300 dark:border-slate-700"
+                                />
+                                <div>
+                                  <strong className="text-slate-700 dark:text-slate-300">{time.label}:</strong>{" "}
+                                  <span>{time.value}</span>
+                                </div>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 <div className="border-t border-slate-200 dark:border-slate-800 pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>

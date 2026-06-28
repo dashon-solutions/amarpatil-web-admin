@@ -13,6 +13,9 @@ const SiteSettings = () => {
     bankDetails: { accountName: "", bankName: "", accountNumber: "", ifscCode: "", upiId: "" },
     colors: { primary: "#6B1F2A", secondary: "#4A1620", accent: "#B8924A" },
     termsAndConditions: "",
+    defaultScopeOfServices: "",
+    defaultDeliverables: "",
+    defaultTimelines: "",
     showTeam: true,
   });
   const [files, setFiles] = useState({ logo: null, stamp: null, signature: null });
@@ -34,6 +37,9 @@ const SiteSettings = () => {
           bankDetails: data.bankDetails || { accountName: "", bankName: "", accountNumber: "", ifscCode: "", upiId: "" },
           colors: data.colors || { primary: "#6B1F2A", secondary: "#4A1620", accent: "#B8924A" },
           termsAndConditions: data.termsAndConditions ? data.termsAndConditions.join("\n") : "",
+          defaultScopeOfServices: data.defaultScopeOfServices ? data.defaultScopeOfServices.join("\n") : "",
+          defaultDeliverables: data.defaultDeliverables ? data.defaultDeliverables.join("\n") : "",
+          defaultTimelines: data.defaultTimelines ? data.defaultTimelines.map(t => `${t.label}: ${t.value}`).join("\n") : "",
           showTeam: data.showTeam !== undefined ? data.showTeam : true
         });
         setPreviews({
@@ -84,6 +90,19 @@ const SiteSettings = () => {
       data.append("bankDetails", JSON.stringify(formData.bankDetails));
       data.append("colors", JSON.stringify(formData.colors));
       data.append("termsAndConditions", JSON.stringify(formData.termsAndConditions.split("\n").map(t => t.trim()).filter(Boolean)));
+      data.append("defaultScopeOfServices", JSON.stringify(formData.defaultScopeOfServices.split("\n").map(t => t.trim()).filter(Boolean)));
+      data.append("defaultDeliverables", JSON.stringify(formData.defaultDeliverables.split("\n").map(t => t.trim()).filter(Boolean)));
+      
+      const parsedTimelines = formData.defaultTimelines.split("\n").map(line => {
+        const idx = line.indexOf(":");
+        if (idx === -1) return { label: line.trim(), value: "" };
+        return {
+          label: line.substring(0, idx).trim(),
+          value: line.substring(idx + 1).trim()
+        };
+      }).filter(t => t.label);
+      data.append("defaultTimelines", JSON.stringify(parsedTimelines));
+
       data.append("showTeam", formData.showTeam);
 
       if (files.logo) data.append("logo", files.logo);
@@ -225,6 +244,41 @@ const SiteSettings = () => {
                 placeholder="Enter default terms here (one per line)..."
                 className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-cyan-500 text-sm resize-none"
               ></textarea>
+            </div>
+
+            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mt-8 mb-4">Default Scope &amp; Deliverables</h3>
+            <p className="text-slate-500 text-xs mb-4">Set up default scope templates (one item per line) which you can check/uncheck during quotation creation.</p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wider">Default Scope of Services (one per line)</label>
+                <textarea
+                  rows="4"
+                  value={formData.defaultScopeOfServices}
+                  onChange={(e) => handleChange(e, null, 'defaultScopeOfServices')}
+                  placeholder="e.g. Professional wedding day photography&#10;Cinematic wedding film&#10;Drone video coverage..."
+                  className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-cyan-500 text-sm resize-none"
+                ></textarea>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wider">Default Deliverables (one per line)</label>
+                <textarea
+                  rows="4"
+                  value={formData.defaultDeliverables}
+                  onChange={(e) => handleChange(e, null, 'defaultDeliverables')}
+                  placeholder="e.g. Cinematic wedding film (20-30 mins)&#10;High-resolution edited photos (20 same-day, full set later)&#10;Album design & printing..."
+                  className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-cyan-500 text-sm resize-none"
+                ></textarea>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wider">Default Timelines (Format: label : value, one per line)</label>
+                <textarea
+                  rows="4"
+                  value={formData.defaultTimelines}
+                  onChange={(e) => handleChange(e, null, 'defaultTimelines')}
+                  placeholder="e.g. Edited Photos : 20 photos — same / next day&#10;Cinematic Film : 20-30 working days&#10;Printed Album : 30 working days after selection..."
+                  className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-cyan-500 text-sm resize-none"
+                ></textarea>
+              </div>
             </div>
           </div>
         </div>
