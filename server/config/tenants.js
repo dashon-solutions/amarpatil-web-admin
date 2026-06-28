@@ -26,7 +26,8 @@ module.exports = {
   "skymotion": {
     domains: [
       "amarpatil2admin.vercel.app",
-      "amarpatilwebsite2.vercel.app" // Add website domains here
+      "amarpatilwebsite2.vercel.app",
+      "skymotiontest.vercel.app" // Add website domains here
     ],
     MONGODB_URI: "mongodb+srv://dashrathbshinde:dashrath@cluster0.xgxtuqr.mongodb.net/skymotionphotography-portfolio",
     ADMIN_EMAIL: "amarp.team@gmail.com",
