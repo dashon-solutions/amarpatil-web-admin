@@ -2,7 +2,7 @@ const Payment = require("../models/Payment.model");
 const Invoice = require("../models/Invoice.model");
 const Booking = require("../models/Booking.model");
 const SiteSettings = require("../models/SiteSettings.model");
-const { compileHtmlToPdf } = require("../utils/pdfCompiler");
+const { generateInvoicePDF } = require("../utils/pdfGenerator");
 const cloudinary = require("../config/cloudinary");
 const sendEmail = require("../utils/sendEmail");
 const Lead = require("../models/Lead.model");
@@ -14,70 +14,8 @@ const generateInvoiceNumber = async () => {
   return `PIXEL-INV-${startNum + count + 1}`;
 };
 
-const formatInvoiceData = (invoiceObj, booking, payments, siteSettings) => {
-  const dateFormatted = new Date(invoiceObj.date).toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric"
-  });
-
-  const eventDateFormatted = booking.eventDate
-    ? new Date(booking.eventDate).toLocaleDateString("en-IN", { day: "2-digit", month: "2-digit", year: "numeric" })
-    : "—";
-
-  const paymentsFormatted = payments.map((p, index) => ({
-    index: index + 1,
-    date: new Date(p.date).toLocaleDateString("en-IN", { day: "2-digit", month: "2-digit", year: "numeric" }),
-    type: p.type,
-    method: p.method || "N/A",
-    amount: p.amount.toFixed(2)
-  }));
-
-  const logoLetters = siteSettings.businessName
-    ? siteSettings.businessName.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase()
-    : "SP";
-
-  const termsList = siteSettings.termsAndConditions || [];
-
-  const totalAmountPaid = payments.reduce((acc, curr) => acc + curr.amount, 0);
-
-  return {
-    logoUrl: siteSettings.logo || "",
-    logoLetters,
-    businessName: siteSettings.businessName || "STUDIO PRO",
-    businessNameUppercase: (siteSettings.businessName || "STUDIO PRO").toUpperCase(),
-    contactAddress: siteSettings.contact?.address || "",
-    contactPhone: siteSettings.contact?.phone || "",
-    contactEmail: siteSettings.contact?.email || "",
-    docTitle: "Payment Invoice & Receipt",
-    docSub: "Receipt of payment confirmation",
-    invoiceNumber: invoiceObj.invoiceNumber,
-    date: dateFormatted,
-    paymentStatus: invoiceObj.type === "Final" ? "Fully Paid" : "Partially Paid",
-    clientName: booking.clientName || "N/A",
-    clientPhone: booking.leadId?.phone || "N/A",
-    shootType: booking.shootType || "—",
-    eventDate: eventDateFormatted,
-    payments: paymentsFormatted,
-    amount: invoiceObj.amount.toFixed(2),
-    totalAmountPaid: totalAmountPaid.toFixed(2),
-    totalProjectCost: booking.totalAmount.toFixed(2),
-    remainingBalance: booking.remainingAmount.toFixed(2),
-    termsList,
-    colors: {
-      primary: siteSettings.colors?.primary || "#6B1F2A",
-      secondary: siteSettings.colors?.secondary || "#4A1620",
-      accent: siteSettings.colors?.accent || "#B8924A"
-    },
-    stampUrl: siteSettings.stamp || "",
-    signatureUrl: siteSettings.signature || "",
-    qrCodeUrl: siteSettings.qrCode || ""
-  };
-};
-
-const generateAndUploadInvoicePDF = async (invoiceObj, booking, payments, siteSettings, tenantId) => {
-  const data = formatInvoiceData(invoiceObj, booking, payments, siteSettings);
-  const pdfBuffer = await compileHtmlToPdf(tenantId, "invoice", data);
+const generateAndUploadInvoicePDF = async (invoiceObj, booking, payments, siteSettings) => {
+  const pdfBuffer = await generateInvoicePDF(invoiceObj, booking, payments, siteSettings);
 
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
@@ -147,7 +85,7 @@ exports.addPayment = async (req, res) => {
 
     // Generate PDF
     const siteSettings = await SiteSettings.findOne();
-    const pdfUrl = await generateAndUploadInvoicePDF(newInvoiceObj, booking, allPayments, siteSettings, req.tenant);
+    const pdfUrl = await generateAndUploadInvoicePDF(newInvoiceObj, booking, allPayments, siteSettings);
 
     const newInvoice = new Invoice({
       ...newInvoiceObj,

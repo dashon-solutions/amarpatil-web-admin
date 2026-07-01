@@ -1,7 +1,7 @@
 const Quotation = require("../models/Quotation.model");
 const Lead = require("../models/Lead.model");
 const SiteSettings = require("../models/SiteSettings.model");
-const { compileHtmlToPdf } = require("../utils/pdfCompiler");
+const { generateQuotationPDF } = require("../utils/pdfGenerator");
 
 // Auto incrementing quotation logic
 const generateQuotationNumber = async (businessName) => {
@@ -24,92 +24,8 @@ const generateQuotationNumber = async (businessName) => {
   return `${prefix}-${nextNumber}`;
 };
 
-const formatQuotationData = (quotation, settings) => {
-  const dateFormatted = new Date(quotation.createdAt).toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric"
-  });
-
-  const validUntilDate = new Date(new Date(quotation.createdAt).getTime() + 30 * 24 * 60 * 60 * 1000);
-  const validUntilFormatted = validUntilDate.toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric"
-  });
-
-  const itemsFormatted = quotation.items.map((item, index) => ({
-    index: index + 1,
-    title: item.title,
-    price: item.price.toFixed(2)
-  }));
-
-  const subtotalFormatted = quotation.subtotal.toFixed(2);
-  const gstAmountFormatted = quotation.gstAmount.toFixed(2);
-  const totalFormatted = quotation.total.toFixed(2);
-
-  const logoLetters = settings.businessName
-    ? settings.businessName.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase()
-    : "SP";
-
-  const termsList = (quotation.termsList && quotation.termsList.length > 0)
-    ? quotation.termsList
-    : (quotation.terms ? quotation.terms.split("\n").map(t => t.trim()).filter(t => t.length > 0) : []);
-
-  return {
-    logoUrl: settings.logo || "",
-    logoLetters,
-    businessName: settings.businessName || "STUDIO PRO",
-    businessNameUppercase: (settings.businessName || "STUDIO PRO").toUpperCase(),
-    businessNameEncoded: encodeURIComponent(settings.businessName || "STUDIO PRO"),
-    contactAddress: settings.contact?.address || "",
-    contactPhone: settings.contact?.phone || "",
-    contactEmail: settings.contact?.email || "",
-    docTitle: quotation.leadId?.shootType ? `${quotation.leadId.shootType} Photography Quotation` : "Photography Quotation",
-    docSub: "Prepared for your special day",
-    quotationNumber: quotation.quotationNumber,
-    date: dateFormatted,
-    validUntil: validUntilFormatted,
-    clientName: quotation.leadId?.name || "N/A",
-    clientPhone: quotation.leadId?.phone || "N/A",
-    clientEmail: quotation.leadId?.email || "—",
-    shootType: quotation.leadId?.shootType || "—",
-    eventDate: quotation.leadId?.eventDate ? new Date(quotation.leadId.eventDate).toLocaleDateString("en-IN", { day: "2-digit", month: "2-digit", year: "numeric" }) : "—",
-    venue: quotation.leadId?.venue || "—",
-    items: itemsFormatted,
-    subtotal: subtotalFormatted,
-    gstEnabled: quotation.gstEnabled,
-    gstPercentage: quotation.gstPercentage || 18,
-    gstAmount: gstAmountFormatted,
-    total: totalFormatted,
-    termsList,
-    scopeOfServices: quotation.scopeOfServices || [],
-    deliverables: quotation.deliverables || [],
-    timeline: quotation.timeline || [],
-    hasScopeOrDeliverables: (quotation.scopeOfServices && quotation.scopeOfServices.length > 0) || 
-                            (quotation.deliverables && quotation.deliverables.length > 0) || 
-                            (quotation.timeline && quotation.timeline.length > 0),
-    bankDetails: {
-      accountName: settings.bankDetails?.accountName || "—",
-      bankName: settings.bankDetails?.bankName || "—",
-      accountNumber: settings.bankDetails?.accountNumber || "—",
-      ifscCode: settings.bankDetails?.ifscCode || "—",
-      upiId: settings.bankDetails?.upiId || ""
-    },
-    colors: {
-      primary: settings.colors?.primary || "#6B1F2A",
-      secondary: settings.colors?.secondary || "#4A1620",
-      accent: settings.colors?.accent || "#B8924A"
-    },
-    stampUrl: settings.stamp || "",
-    signatureUrl: settings.signature || "",
-    qrCodeUrl: settings.qrCode || ""
-  };
-};
-
-const buildPDFBuffer = async (quotation, settings, tenantId) => {
-  const data = formatQuotationData(quotation, settings);
-  return await compileHtmlToPdf(tenantId, "quotation", data);
+const buildPDFBuffer = async (quotation, settings) => {
+  return await generateQuotationPDF(quotation, settings);
 };
 
 exports.createQuotation = async (req, res) => {
@@ -180,7 +96,7 @@ exports.generatePDF = async (req, res) => {
 
     const settings = await SiteSettings.findOne() || {};
 
-    const pdfBuffer = await buildPDFBuffer(quotation, settings, req.tenant);
+    const pdfBuffer = await buildPDFBuffer(quotation, settings);
 
     const filename = `Quotation-${quotation.quotationNumber}.pdf`;
 
@@ -206,7 +122,7 @@ exports.sendQuotationEmail = async (req, res) => {
 
     const settings = await SiteSettings.findOne() || {};
 
-    const pdfBuffer = await buildPDFBuffer(quotation, settings, req.tenant);
+    const pdfBuffer = await buildPDFBuffer(quotation, settings);
 
     await sendEmail({
       email: email,
