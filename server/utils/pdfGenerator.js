@@ -21,7 +21,7 @@ const fetchImage = (url) => {
 
 const COLORS = {
   primary: "#6B1F2A",
-  secondary: "#F5EBE1",
+  bgLight: "#F5EBE1",
   accent: "#B8924A",
   textDark: "#333333",
   textLight: "#777777",
@@ -120,7 +120,7 @@ const drawInfoBoxes = (doc, startY, clientObj, shootObj) => {
   
   const drawBox = (x, y, title, data) => {
     // Background
-    doc.rect(x, y, boxWidth, boxHeight).fill(COLORS.secondary);
+    doc.rect(x, y, boxWidth, boxHeight).fill(COLORS.bgLight);
     // Top border
     doc.rect(x, y, boxWidth, 4).fill(COLORS.primary);
     
@@ -191,8 +191,8 @@ const drawScopeBox = (doc, startY, shootType, scopeList, deliverablesList) => {
   // Draw background (need to do this behind the text technically, but pdfkit doesn't have z-index.
   // We should have calculated height first. To fix this, we draw a rect, but we can't overdraw.
   // Let's just draw the border around it instead.
-  doc.lineWidth(1).strokeColor(COLORS.secondary);
-  doc.rect(40, boxStartY, 515, boxHeight).fillAndStroke(COLORS.secondary, COLORS.secondary);
+  doc.lineWidth(1).strokeColor(COLORS.bgLight);
+  doc.rect(40, boxStartY, 515, boxHeight).fillAndStroke(COLORS.bgLight, COLORS.bgLight);
   
   // Redraw text over background
   scopeY = boxStartY + 10;
@@ -227,7 +227,7 @@ const drawTable = (doc, startY, items, subtotal, totalAmount) => {
   doc.fillColor("#FFFFFF").font("Helvetica-Bold").fontSize(9);
   doc.text("#", 50, y + 6);
   doc.text("ITEM / SERVICE", 80, y + 6);
-  doc.text("AMOUNT (₹)", 450, y + 6, { width: 95, align: "right" });
+  doc.text("AMOUNT (Rs.)", 450, y + 6, { width: 95, align: "right" });
   
   y += 20;
   
@@ -256,14 +256,14 @@ const drawTable = (doc, startY, items, subtotal, totalAmount) => {
   
   // Subtotal
   doc.fillColor(COLORS.textLight).font("Helvetica").fontSize(9).text("Subtotal", 350, y, { width: 100, align: "right" });
-  doc.fillColor(COLORS.textDark).text(`₹ ${Number(subtotal).toFixed(2)}`, 450, y, { width: 95, align: "right" });
+  doc.fillColor(COLORS.textDark).text(`Rs. ${Number(subtotal).toFixed(2)}`, 450, y, { width: 95, align: "right" });
   
   y += 20;
   
   // Total Block
   doc.rect(380, y, 175, 25).fill(COLORS.primary);
   doc.fillColor("#FFFFFF").font("Helvetica-Bold").fontSize(11).text("Total Amount", 390, y + 7);
-  doc.text(`₹ ${Number(totalAmount).toFixed(2)}`, 450, y + 7, { width: 95, align: "right" });
+  doc.text(`Rs. ${Number(totalAmount).toFixed(2)}`, 450, y + 7, { width: 95, align: "right" });
   
   return y + 45;
 };
@@ -292,7 +292,7 @@ const drawTermsAndBank = async (doc, startY, terms, bankObj, qrCodeUrl) => {
   const boxWidth = 250;
   const boxHeight = 110;
   
-  doc.rect(boxX, contentY, boxWidth, boxHeight).fill(COLORS.secondary);
+  doc.rect(boxX, contentY, boxWidth, boxHeight).fill(COLORS.bgLight);
   
   let bY = contentY + 10;
   const bankRows = [
@@ -321,10 +321,8 @@ const drawTermsAndBank = async (doc, startY, terms, bankObj, qrCodeUrl) => {
       const qrBuffer = await fetchImage(qrCodeUrl);
       doc.image(qrBuffer, boxX + 10, bY, { width: 40, height: 40 });
     } catch(err) {
-      doc.rect(boxX + 10, bY, 40, 40).stroke(COLORS.border);
+      // fallback
     }
-  } else {
-    doc.rect(boxX + 10, bY, 40, 40).stroke(COLORS.border);
   }
 
   return Math.max(termY, contentY + boxHeight) + 40;
@@ -464,9 +462,9 @@ const generateInvoicePDF = async (invoice, booking, payments, settings) => {
       
       // Add Remaining balance text under table
       doc.fillColor(COLORS.textDark).font("Helvetica-Bold").fontSize(10);
-      doc.text(`Total Project Cost: ₹ ${Number(booking.totalAmount || 0).toFixed(2)}`, 380, y, { width: 175, align: "right" });
+      doc.text(`Total Project Cost: Rs. ${Number(booking.totalAmount || 0).toFixed(2)}`, 380, y, { width: 175, align: "right" });
       const remainingBalance = (booking.totalAmount || 0) - payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
-      doc.fillColor(COLORS.primary).text(`Remaining Balance: ₹ ${remainingBalance.toFixed(2)}`, 380, y + 15, { width: 175, align: "right" });
+      doc.fillColor(COLORS.primary).text(`Remaining Balance: Rs. ${remainingBalance.toFixed(2)}`, 380, y + 15, { width: 175, align: "right" });
       
       y += 40;
 
