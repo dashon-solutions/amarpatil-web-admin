@@ -19,7 +19,7 @@ const getTemplate = (tenantId, docType) => {
       return fs.readFileSync(tenantPath, "utf-8");
     }
   }
-  
+
   const defaultPath = path.join(__dirname, `../templates/default/${docType}.html`);
   return fs.readFileSync(defaultPath, "utf-8");
 };
@@ -37,10 +37,13 @@ const compileHtmlToPdf = async (tenantId, docType, data) => {
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
     headless: "new"
   });
-  
+
   try {
     const page = await browser.newPage();
-    await page.setContent(compiledHtml, { waitUntil: "networkidle0" });
+
+    // networkidle2 is less strict than networkidle0, it prevents hanging if there's a stuck background request.
+    await page.setContent(compiledHtml, { waitUntil: ["load", "networkidle2"], timeout: 60000 });
+
     const pdfBuffer = await page.pdf({
       format: "A4",
       printBackground: true,
