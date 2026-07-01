@@ -24,6 +24,31 @@ const getTemplate = (tenantId, docType) => {
   return fs.readFileSync(defaultPath, "utf-8");
 };
 
+let browserInstance = null;
+
+const getBrowser = async () => {
+  if (browserInstance) {
+    try {
+      if (await browserInstance.isConnected()) {
+        return browserInstance;
+      }
+    } catch (e) {
+      // Browser disconnected or crashed, we'll launch a new one
+    }
+  }
+  
+  browserInstance = await puppeteer.launch({
+    args: [
+      "--no-sandbox", 
+      "--disable-setuid-sandbox", 
+      "--disable-dev-shm-usage", // Helps prevent memory issues on Render
+      "--disable-gpu"
+    ],
+    headless: "new"
+  });
+  return browserInstance;
+};
+
 /**
  * Compiles Handlebars HTML template with data and renders it to a PDF buffer using Puppeteer.
  */
@@ -32,17 +57,15 @@ const compileHtmlToPdf = async (tenantId, docType, data) => {
   const template = handlebars.compile(htmlContent);
   const compiledHtml = template(data);
 
-  // Launch headless browser to render PDF
-  const browser = await puppeteer.launch({
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    headless: "new"
-  });
+  const browser = await getBrowser();
+  let page;
 
   try {
-    const page = await browser.newPage();
+    page = await browser.newPage();
 
-    // networkidle2 is less strict than networkidle0, it prevents hanging if there's a stuck background request.
-    await page.setContent(compiledHtml, { waitUntil: ["load", "networkidle2"], timeout: 60000 });
+    // Use "load" instead of "networkidle2" to save at least 500ms of waiting time.
+    // "load" guarantees all images are loaded without the artificial network idle delay.
+    await page.setContent(compiledHtml, { waitUntil: "load", timeout: 30000 });
 
     const pdfBuffer = await page.pdf({
       format: "A4",
@@ -56,7 +79,7 @@ const compileHtmlToPdf = async (tenantId, docType, data) => {
     });
     return pdfBuffer;
   } finally {
-    await browser.close();
+    if (page) await page.close(); // Close only the page to reuse the browser
   }
 };
 
