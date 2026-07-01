@@ -18,6 +18,7 @@ export default function Leads() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [pendingBookingLead, setPendingBookingLead] = useState(null);
+  const [confirmBackMoveLead, setConfirmBackMoveLead] = useState(null);
 
   useEffect(() => {
     dispatch(fetchLeads());
@@ -31,6 +32,21 @@ export default function Leads() {
     const leadId = result.draggableId;
 
     if (sourceStatus === destStatus) return;
+
+    const stageOrder = ["new", "contacted", "quotation_sent", "advance_paid", "shoot_done", "payment_pending", "closed"];
+    const sourceIndex = stageOrder.indexOf(sourceStatus);
+    const destIndex = stageOrder.indexOf(destStatus);
+
+    if (destIndex < sourceIndex) {
+      if (sourceStatus === "shoot_done" && destStatus === "advance_paid") {
+        const draggedLead = leads.find((l) => l._id === leadId);
+        setConfirmBackMoveLead(draggedLead);
+        return;
+      } else {
+        toast.error("Leads cannot be moved backwards in the pipeline.");
+        return;
+      }
+    }
 
     if (destStatus === "advance_paid") {
       const draggedLead = leads.find((l) => l._id === leadId);
@@ -126,6 +142,39 @@ export default function Leads() {
                setPendingBookingLead(null);
             }}
          />
+      )}
+
+      {confirmBackMoveLead && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+          <div className="bg-white dark:bg-slate-900 rounded-xl max-w-md w-full p-6 shadow-2xl">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Confirm Move Back</h3>
+            <p className="text-slate-600 dark:text-slate-400 mb-6">
+              Are you sure you want to move "{confirmBackMoveLead.name}" back to Advance Paid?
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button 
+                onClick={() => setConfirmBackMoveLead(null)}
+                className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg transition-colors text-sm font-bold"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={async () => {
+                  try {
+                    await dispatch(updateLeadStatus({ id: confirmBackMoveLead._id, status: "advance_paid" })).unwrap();
+                    toast.success("Lead moved back to Advance Paid");
+                  } catch (err) {
+                    toast.error("Failed to update status");
+                  }
+                  setConfirmBackMoveLead(null);
+                }}
+                className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg transition-colors text-sm font-bold"
+              >
+                Yes, Move Back
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

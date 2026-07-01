@@ -1,5 +1,9 @@
 const fs = require("fs");
 const path = require("path");
+
+// Force Puppeteer to use the local cache directory to survive Render deployments and CWD issues
+process.env.PUPPETEER_CACHE_DIR = path.join(__dirname, '..', '.cache', 'puppeteer');
+
 const handlebars = require("handlebars");
 const puppeteer = require("puppeteer");
 
