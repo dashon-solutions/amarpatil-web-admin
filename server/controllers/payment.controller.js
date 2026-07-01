@@ -3,7 +3,7 @@ const Invoice = require("../models/Invoice.model");
 const Booking = require("../models/Booking.model");
 const SiteSettings = require("../models/SiteSettings.model");
 const { generateInvoicePDF } = require("../utils/pdfGenerator");
-const cloudinary = require("../config/cloudinary");
+
 const sendEmail = require("../utils/sendEmail");
 const Lead = require("../models/Lead.model");
 
@@ -14,19 +14,27 @@ const generateInvoiceNumber = async () => {
   return `PIXEL-INV-${startNum + count + 1}`;
 };
 
-const generateAndUploadInvoicePDF = async (invoiceObj, booking, payments, siteSettings) => {
-  const pdfBuffer = await generateInvoicePDF(invoiceObj, booking, payments, siteSettings);
+exports.downloadInvoicePDF = async (req, res) => {
+  try {
+    const invoice = await Invoice.findById(req.params.id);
+    if (!invoice) return res.status(404).json({ success: false, message: "Invoice not found" });
 
-  return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      { folder: "photo_crm/invoices", resource_type: "image", format: "pdf" },
-      (error, result) => {
-        if (error) reject(error);
-        else resolve(result.secure_url);
-      }
-    );
-    uploadStream.end(pdfBuffer);
-  });
+    Lead.schema;
+    const booking = await Booking.findById(invoice.bookingId).populate("leadId");
+    const allPayments = await Payment.find({ bookingId: invoice.bookingId }).sort({ date: 1 });
+    const siteSettings = await SiteSettings.findOne() || {};
+
+    const pdfBuffer = await generateInvoicePDF(invoice, booking, allPayments, siteSettings);
+
+    const filename = `Invoice-${invoice.invoiceNumber}.pdf`;
+
+    res.setHeader("Content-Disposition", `inline; filename="${filename}"`);
+    res.setHeader("Content-Type", "application/pdf");
+    res.end(pdfBuffer);
+  } catch (error) {
+    console.error("Download Invoice PDF Error:", error);
+    if (!res.headersSent) res.status(500).json({ success: false, message: "Failed to generate PDF", error: error.message });
+  }
 };
 
 exports.addPayment = async (req, res) => {
@@ -83,16 +91,19 @@ exports.addPayment = async (req, res) => {
       date: new Date()
     };
 
-    // Generate PDF
-    const siteSettings = await SiteSettings.findOne();
-    const pdfUrl = await generateAndUploadInvoicePDF(newInvoiceObj, booking, allPayments, siteSettings);
+    // PDF is now generated dynamically when requested. We leave pdfUrl empty or set it to the dynamic API route
+    const pdfUrl = `/api/payments/invoices/pdf/temp`; 
 
     const newInvoice = new Invoice({
       ...newInvoiceObj,
-      pdfUrl
+      pdfUrl // This will be updated after saving with the real ID
     });
 
     const savedInvoice = await newInvoice.save();
+
+    // Update pdfUrl with correct ID
+    savedInvoice.pdfUrl = `/api/payments/invoices/pdf/${savedInvoice._id}`;
+    await savedInvoice.save();
 
     savedPayment.invoiceId = savedInvoice._id;
     await savedPayment.save();
@@ -129,15 +140,24 @@ exports.sendInvoiceEmail = async (req, res) => {
     const invoice = await Invoice.findById(req.params.id);
     if (!invoice) return res.status(404).json({ success: false, message: "Invoice not found" });
 
+    Lead.schema;
+    const booking = await Booking.findById(invoice.bookingId).populate("leadId");
+    const allPayments = await Payment.find({ bookingId: invoice.bookingId }).sort({ date: 1 });
+    const siteSettings = await SiteSettings.findOne() || {};
+
+    const pdfBuffer = await generateInvoicePDF(invoice, booking, allPayments, siteSettings);
+
     await sendEmail({
       email,
-      subject: `Invoice ${invoice.invoiceNumber} from our Studio`,
-      message: `Please find your invoice (${invoice.type}) here: ${invoice.pdfUrl}`,
-      html: `<p>Hello!</p>
-             <p>Your payment invoice is ready.</p>
-             <p>Amount: Rs. ${invoice.amount}</p>
-             <p>Type: ${invoice.type}</p>
-             <p>Download here: <a href="${invoice.pdfUrl}">Download Invoice</a></p>`
+      subject: `Invoice ${invoice.invoiceNumber} from ${siteSettings.businessName || "our Studio"}`,
+      message: `Dear Client,\n\nPlease find attached your payment invoice (${invoice.type}).\n\nAmount: Rs. ${invoice.amount}\n\nThank you for your business.`,
+      attachments: [
+        {
+          filename: `Invoice-${invoice.invoiceNumber}.pdf`,
+          content: pdfBuffer,
+          contentType: 'application/pdf'
+        }
+      ]
     });
 
     res.status(200).json({ success: true, message: "Invoice sent via email" });

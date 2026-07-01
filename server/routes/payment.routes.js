@@ -3,6 +3,9 @@ const router = express.Router();
 const paymentController = require("../controllers/payment.controller");
 const { protect } = require("../middleware/auth.middleware");
 
+// Public PDF generation endpoint
+router.get("/invoices/pdf/:id", paymentController.downloadInvoicePDF);
+
 router.use(protect);
 
 router.post("/:bookingId", paymentController.addPayment);
