@@ -208,6 +208,10 @@ exports.getQuotationsByLead = async (req, res) => {
 exports.generatePDF = async (req, res) => {
   try {
     const { id } = req.params;
+    
+    // Touch Lead model to ensure it is registered on the tenant connection before populate
+    Lead.schema; 
+    
     const quotation = await Quotation.findById(id).populate("leadId");
     if (!quotation) return res.status(404).json({ success: false, message: "Quotation not found" });
 
@@ -321,16 +325,19 @@ exports.generatePDF = async (req, res) => {
     doc.end();
 
   } catch (error) {
-    console.error("Generate PDF Error: ", error);
-    if (!res.headersSent) res.status(500).json({ success: false, message: "PDF Generation Failed" });
+    console.error("Generate PDF Error: ", error.stack || error);
+    if (!res.headersSent) res.status(500).json({ success: false, message: "PDF Generation Failed", details: error.message });
   }
 };
 
 exports.sendQuotationEmail = async (req, res) => {
   try {
-    const { id } = params = req.params;
+    const { id } = req.params;
     const { email } = req.body;
     
+    // Touch Lead model to ensure it is registered on the tenant connection before populate
+    Lead.schema;
+
     const quotation = await Quotation.findById(id).populate("leadId");
     if (!quotation) return res.status(404).json({ success: false, message: "Quotation not found" });
 

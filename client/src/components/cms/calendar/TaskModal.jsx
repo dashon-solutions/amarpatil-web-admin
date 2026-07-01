@@ -25,7 +25,7 @@ export default function TaskModal({ isOpen, onClose, selectedDate, onTaskCreated
       }));
       // Fetch team members for assignment
       axiosInstance.get("/team").then(res => {
-        setTeamMembers(res.data.teamMembers || []);
+        setTeamMembers(res.data.team || []);
       }).catch(err => console.error("Failed to load team"));
     }
   }, [isOpen, selectedDate]);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  X, CheckSquare, Mail, MessageCircle, Copy, CheckCircle, Disc, ExternalLink, Brush, UserCheck, Activity
+  X, CheckSquare, Mail, MessageCircle, Copy, CheckCircle, Disc, ExternalLink, Brush, UserCheck, Activity, FileDigit
 } from "lucide-react";
 import axiosInstance from "../../../utils/axiosInstance";
 import { toast } from "react-toastify";

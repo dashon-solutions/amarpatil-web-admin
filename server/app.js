@@ -18,7 +18,14 @@ const analyticsRoutes = require("./routes/analytics.routes");
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: function(origin, callback) {
+    return callback(null, true);
+  },
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-tenant-domain', 'Accept', 'Origin'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH']
+}));
 app.use(tenantMiddleware);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

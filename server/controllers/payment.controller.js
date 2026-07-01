@@ -23,7 +23,7 @@ const generateAndUploadInvoicePDF = async (invoiceObj, booking, payments, siteSe
     doc.on("end", () => {
       const pdfBuffer = Buffer.concat(buffers);
       const uploadStream = cloudinary.uploader.upload_stream(
-        { folder: "photo_crm/invoices", resource_type: "raw", format: "pdf" },
+        { folder: "photo_crm/invoices", resource_type: "image", format: "pdf" },
         (error, result) => {
           if (error) reject(error);
           else resolve(result.secure_url);
@@ -105,6 +105,9 @@ exports.addPayment = async (req, res) => {
     const { amount, method } = req.body;
     const { bookingId } = req.params;
 
+    // Touch Lead model to ensure it is registered on the tenant connection before populate
+    Lead.schema;
+
     const booking = await Booking.findById(bookingId).populate("leadId");
     if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
 
@@ -174,6 +177,7 @@ exports.addPayment = async (req, res) => {
 
 exports.getPayments = async (req, res) => {
   try {
+    Invoice.schema; // Touch Invoice model for tenant connection
     const payments = await Payment.find({ bookingId: req.params.bookingId }).populate("invoiceId").sort({ date: 1 });
     res.status(200).json({ success: true, count: payments.length, payments });
   } catch (error) {
