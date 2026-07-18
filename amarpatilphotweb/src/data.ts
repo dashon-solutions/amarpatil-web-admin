@@ -113,24 +113,24 @@ export const GALLERY_DATA: GalleryItem[] = [
 
 export const STAT_CARDS: StatCard[] = [
   {
-    value: "25+",
+    value: "8+",
     label: "Years of Heritage",
-    description: "An uncompromised standard of creative mastery and luxury brand consulting since 2001."
+    description: "Delivering exceptional creativity and premium design services since 2018."
   },
   {
-    value: "140+",
-    label: "Masterful Projects",
-    description: "Curatively designed properties, bespoke fashion lines, and luxury environments globally."
+    value: "500+",
+    label: "Wedding Projects",
+    description: "Successfully planned, designed, and executed memorable wedding celebrations."
   },
   {
-    value: "14",
-    label: "International Seals",
-    description: "Awarded recognition for design purity, editorial writing, and spatial architecture."
+    value: "50+",
+    label: "Commercial Projects",
+    description: "Creative solutions delivered for commercial spaces, brands, and business events."
   },
   {
-    value: "100%",
-    label: "Flawless Execution",
-    description: "Immersive service connecting raw organic details with absolute structural execution."
+    value: "300+",
+    label: "Model Shoots",
+    description: "Professional fashion, portfolio, and commercial model shoots with premium production quality."
   }
 ];
 
