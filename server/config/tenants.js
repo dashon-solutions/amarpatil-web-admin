@@ -13,6 +13,7 @@ module.exports = {
       "studio.dashonsolutions.com",
       "studio.dashonsoltution.com",
       "dashonsolutions.com",
+      "green-chicken-791948.hostingersite.com",
     ],
     MONGODB_URI: "mongodb+srv://clientdeskteam_db_user:WDcf17sFy2efzPEq@amarpatilfinal.bzkt5bn.mongodb.net",
     ADMIN_EMAIL: "amarpatil@gmail.com",

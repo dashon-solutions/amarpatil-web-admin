@@ -226,21 +226,25 @@ export default function BookingDetailDrawer({ booking, onClose }) {
                     </div>
 
                     <div className="flex gap-2 mt-2">
-                      {inv.pdfUrl && (
-                        <>
-                          <a href={inv.pdfUrl} target="_blank" rel="noreferrer" className="flex-1 flex justify-center items-center py-2 bg-slate-100 dark:bg-slate-800 hover:bg-cyan-50 dark:hover:bg-cyan-500/10 text-slate-700 dark:text-slate-300 hover:text-cyan-600 text-xs font-bold uppercase tracking-wider rounded transition-colors group-hover:border-cyan-500/30">
-                            <Download className="w-3.5 h-3.5 mr-1" /> PDF
-                          </a>
-                          <button
-                            onClick={() => {
-                              const msg = `Hello ${booking.clientName},%0A%0AYour payment invoice (${inv.type}) is ready.%0AAmount: Rs. ${inv.amount}%0A%0ADownload here:%0A${inv.pdfUrl}%0A%0A- Our Studio`;
-                              window.open(`https://wa.me/?text=${msg}`, '_blank');
-                            }}
-                            className="flex-1 flex justify-center items-center py-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20 text-xs font-bold uppercase tracking-wider rounded transition-colors">
-                            <Smartphone className="w-3.5 h-3.5 mr-1" /> Send
-                          </button>
-                        </>
-                      )}
+                      {inv.pdfUrl && (() => {
+                        const backendBaseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
+                        const fullPdfUrl = `${backendBaseUrl}${inv.pdfUrl}?tenant=${window.location.hostname}`;
+                        return (
+                          <>
+                            <a href={fullPdfUrl} target="_blank" rel="noreferrer" className="flex-1 flex justify-center items-center py-2 bg-slate-100 dark:bg-slate-800 hover:bg-cyan-50 dark:hover:bg-cyan-500/10 text-slate-700 dark:text-slate-300 hover:text-cyan-600 text-xs font-bold uppercase tracking-wider rounded transition-colors group-hover:border-cyan-500/30">
+                              <Download className="w-3.5 h-3.5 mr-1" /> PDF
+                            </a>
+                            <button
+                              onClick={() => {
+                                const msg = `Hello ${booking.clientName},%0A%0AYour payment invoice (${inv.type}) is ready.%0AAmount: Rs. ${inv.amount}%0A%0ADownload here:%0A${fullPdfUrl}%0A%0A- Our Studio`;
+                                window.open(`https://wa.me/?text=${msg}`, '_blank');
+                              }}
+                              className="flex-1 flex justify-center items-center py-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20 text-xs font-bold uppercase tracking-wider rounded transition-colors">
+                              <Smartphone className="w-3.5 h-3.5 mr-1" /> Send
+                            </button>
+                          </>
+                        );
+                      })()}
                     </div>
                   </div>
                 ))}

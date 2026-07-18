@@ -56,32 +56,37 @@ const drawSectionTitle = (doc, title, x, y) => {
 // --- DRAWING BLOCKS ---
 
 const drawHeader = async (doc, settings) => {
-  let headerHeight = 60;
+  let leftY = 45;
   
   // Logo
   if (settings.logo && settings.logo.startsWith("http")) {
     try {
       const logoBuffer = await fetchImage(settings.logo);
       doc.image(logoBuffer, 40, 40, { height: 40 });
+      leftY = 80;
     } catch (err) {
-      doc.fillColor(COLORS.primary).font("Times-Bold").fontSize(24).text(settings.businessName || "STUDIO PRO", 40, 45);
+      doc.fillColor(COLORS.primary).font("Times-Bold").fontSize(20).text(settings.businessName || "STUDIO PRO", 40, 45, { width: 250 });
+      leftY = doc.y;
     }
   } else {
-    doc.fillColor(COLORS.primary).font("Times-Bold").fontSize(24).text(settings.businessName || "STUDIO PRO", 40, 45);
+    doc.fillColor(COLORS.primary).font("Times-Bold").fontSize(20).text(settings.businessName || "STUDIO PRO", 40, 45, { width: 250 });
+    leftY = doc.y;
   }
 
   // Right side contact
   doc.fillColor(COLORS.textLight).font("Helvetica").fontSize(8);
   const addressText = settings.contact?.address || "Address Not Available";
-  doc.text(addressText, 250, 45, { align: "right", width: 305 });
+  doc.text(addressText, 300, 45, { align: "right", width: 255 });
   
   doc.fillColor(COLORS.textDark).font("Helvetica-Bold").fontSize(9);
-  const phone = settings.contact?.phone ? `+91 ${settings.contact.phone}` : "";
+  const phoneVal = settings.contact?.phone || "";
+  const phone = phoneVal ? (phoneVal.startsWith("+") ? phoneVal : `+91 ${phoneVal}`) : "";
   const email = settings.contact?.email || "";
-  doc.text(`${phone}  ·  ${email}`, 250, 65, { align: "right", width: 305 });
+  doc.text(`${phone}  ·  ${email}`, 300, doc.y + 5, { align: "right", width: 255 });
+  
+  const rightY = doc.y;
 
-  doc.moveDown(2);
-  const dividerY = doc.y;
+  const dividerY = Math.max(leftY, rightY) + 15;
   drawDivider(doc, dividerY);
   return dividerY + 15;
 };
@@ -116,11 +121,18 @@ const drawTitleBlock = (doc, startY, docTitle, docNo, dateStr, validStr) => {
 
 const drawInfoBoxes = (doc, startY, clientObj, shootObj) => {
   const boxWidth = 250;
-  const boxHeight = 70;
   
   const drawBox = (x, y, title, data) => {
+    // First calculate height
+    let tempY = y + 35;
+    data.forEach(row => {
+      const textHeight = doc.font("Helvetica-Bold").fontSize(9).heightOfString(row.value, { width: boxWidth - 105 });
+      tempY += Math.max(15, textHeight + 5);
+    });
+    const calculatedBoxHeight = Math.max(70, tempY - y + 5);
+
     // Background
-    doc.rect(x, y, boxWidth, boxHeight).fill(COLORS.bgLight);
+    doc.rect(x, y, boxWidth, calculatedBoxHeight).fill(COLORS.bgLight);
     // Top border
     doc.rect(x, y, boxWidth, 4).fill(COLORS.primary);
     
@@ -131,24 +143,26 @@ const drawInfoBoxes = (doc, startY, clientObj, shootObj) => {
     let textY = y + 35;
     data.forEach(row => {
       doc.fillColor(COLORS.textLight).font("Helvetica").fontSize(9).text(row.label, x + 15, textY);
+      const textHeight = doc.font("Helvetica-Bold").fontSize(9).heightOfString(row.value, { width: boxWidth - 105 });
       doc.fillColor(COLORS.textDark).font("Helvetica-Bold").text(row.value, x + 90, textY, { width: boxWidth - 105, align: "right" });
-      textY += 15;
+      textY += Math.max(15, textHeight + 5);
     });
+    return calculatedBoxHeight;
   };
 
-  drawBox(40, startY, "CLIENT DETAILS", [
+  const h1 = drawBox(40, startY, "CLIENT DETAILS", [
     { label: "Name", value: clientObj.name || "N/A" },
     { label: "Phone", value: clientObj.phone || "N/A" },
     { label: "Email", value: clientObj.email || "N/A" }
   ]);
 
-  drawBox(305, startY, "SHOOT DETAILS", [
+  const h2 = drawBox(305, startY, "SHOOT DETAILS", [
     { label: "Shoot Type", value: shootObj.type || "Event" },
     { label: "Event Date", value: shootObj.date || "N/A" },
     { label: "Venue", value: shootObj.venue || "—" }
   ]);
 
-  return startY + boxHeight + 20;
+  return startY + Math.max(h1, h2) + 20;
 };
 
 const drawScopeBox = (doc, startY, shootType, scopeList, deliverablesList) => {
