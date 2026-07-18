@@ -150,11 +150,11 @@ export default function Story({ isHomepage = false }: StoryProps) {
                   ))
                 ) : (
                   <>
-                    <span>Monte Carlo</span>
+                    {/* <span>Monte Carlo</span>
                     <span className="text-gold-warm">•</span>
                     <span>London</span>
                     <span className="text-gold-warm">•</span>
-                    <span>Tokyo</span>
+                    <span>Tokyo</span> */}
                   </>
                 )}
               </p>
