@@ -5,6 +5,36 @@ import { STORY_DATA } from "../data";
 import { getStories } from "../utils/api";
 import { formatHeading } from "../utils/text";
 
+const FALLBACK_STORIES = [
+  {
+    "_id": "6a3c122057b999849ad1ca50",
+    "title": "Pranav & Swarupa Wedding",
+    "slug": "pranav-swarupa-wedding",
+    "mainImage": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321693/photo_crm/cms/xv68jpy8yx39i1bego9l.webp",
+    "sideImage": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321694/photo_crm/cms/p48ytrhnuwme1mzve8pq.webp",
+    "shortDescription": "A beautiful celebration of love, traditions, and unforgettable moments as Pranav and Swarupa began their journey together.",
+    "description": "Pranav and Swarupa's wedding was a perfect blend of tradition, joy, and heartfelt emotions. Surrounded by family and friends, every moment of their special day reflected their love, happiness, and the strong bond they share.\r\n\r\nFrom the vibrant pre-wedding ceremonies to the beautiful wedding rituals, every detail was filled with warmth and celebration. The couple's genuine smiles, emotional exchanges, and candid moments created memories that will be cherished forever.\r\n\r\nOur photography team had the privilege of capturing every precious moment—from the intimate glances and laughter to the grand celebrations and cultural traditions. Each photograph tells a story of love, togetherness, and the beginning of a wonderful new chapter.\r\n\r\nThis wedding was not just an event; it was a collection of unforgettable memories that beautifully showcased the journey of two souls becoming one.",
+    "galleryImages": [
+      "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321695/photo_crm/cms/vfvuvyxtylvlrumarq7k.webp",
+      "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321695/photo_crm/cms/qv8bghmasoyz515tuynw.webp",
+      "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321694/photo_crm/cms/cebvb3uocuoy1lntfdli.webp",
+      "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321727/photo_crm/cms/fqpap9imwwbjgdnnr3jx.webp",
+      "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321728/photo_crm/cms/odct4ugiilwpyjqioiym.webp",
+      "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321728/photo_crm/cms/lxcue3ylhcv7rxfamkya.webp",
+      "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321728/photo_crm/cms/qpl9eitjn6wrafpgbatq.webp",
+      "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321727/photo_crm/cms/ifqzvzyhfenouln3sx1q.webp",
+      "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321728/photo_crm/cms/ew0oddqjinl08xn6cw17.webp",
+      "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321728/photo_crm/cms/szw1doob8l5nfan9tg28.webp",
+      "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321729/photo_crm/cms/gxdkflgsmhb1jlkbhgsb.webp"
+    ],
+    "showOnHome": true,
+    "isActive": true,
+    "createdAt": "2026-06-24T17:21:36.602Z",
+    "updatedAt": "2026-06-24T17:22:10.492Z",
+    "__v": 0
+  }
+];
+
 interface StoryProps {
   isHomepage?: boolean;
 }
@@ -20,9 +50,14 @@ export default function Story({ isHomepage = false }: StoryProps) {
         if (activeStories.length > 0) {
           const homeStory = activeStories.find((s: any) => s.showOnHome);
           setStory(homeStory || activeStories[0]);
+        } else {
+          setStory(FALLBACK_STORIES[0]);
         }
       })
-      .catch((err) => console.error("Error loading story:", err))
+      .catch((err) => {
+        console.error("Error loading story:", err);
+        setStory(FALLBACK_STORIES[0]);
+      })
       .finally(() => setLoading(false));
   }, []);
 

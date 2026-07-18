@@ -9,7 +9,8 @@ module.exports = {
   "amarpatil": {
     domains: [
       "amarpatil-web-admin-q7qq.vercel.app",
-      "amarpatil-web-admin.vercel.app" // Add website domains here
+      "amarpatil-web-admin.vercel.app",
+      "localhost:3000" // Add website domains here
     ],
     MONGODB_URI: "mongodb+srv://clientdeskteam_db_user:WDcf17sFy2efzPEq@amarpatilfinal.bzkt5bn.mongodb.net",
     ADMIN_EMAIL: "amarpatil@gmail.com",

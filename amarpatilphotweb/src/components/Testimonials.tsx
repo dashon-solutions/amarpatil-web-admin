@@ -5,6 +5,41 @@ import { TESTIMONIALS_DATA } from "../data";
 import { getTestimonials } from "../utils/api";
 import { formatHeading } from "../utils/text";
 
+const FALLBACK_TESTIMONIALS = [
+  {
+    "_id": "6a494490362b2ab93279c573",
+    "name": "Pranav Narhire",
+    "message": "Incredible Photographs !\r\nI did a product shoot which gave us a great mileage.\r\nA very good photography sense and affordable rates for sure ! ✅",
+    "rating": 5,
+    "isActive": true,
+    "createdAt": "2026-07-04T17:36:16.193Z",
+    "updatedAt": "2026-07-15T16:21:57.158Z",
+    "__v": 0,
+    "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1784132516/photo_crm/cms/t7tbdn1rs9o4ilfqhwyh.webp"
+  },
+  {
+    "_id": "6a49444b362b2ab93279c572",
+    "name": "Rutuja Shinde",
+    "message": "Best photographer, best team and fabulous photos. I would like to suggest you guys to other peoples as well for their functions. Each and every click is making frame beautiful. And cooperation and understating is actually nice.",
+    "rating": 5,
+    "isActive": true,
+    "createdAt": "2026-07-04T17:35:07.101Z",
+    "updatedAt": "2026-07-04T17:35:07.101Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a4543e5a643c49d32bd3e3d",
+    "name": "Manish Ambhore",
+    "message": "We are absolutely thrilled with our wedding photos from Amar Patil and team! They had an incredible eye for candid moments—looking through the gallery feels like reliving the day all over again. They managed the lighting perfectly, turning tricky spots into beautiful shots.\r\nWhat impressed us most, however, was how relaxed and comfortable they made us feel. They had a natural way of making us smile and laugh, which really shows in how genuine every photo looks. Highly recommend!",
+    "rating": 5,
+    "isActive": true,
+    "createdAt": "2026-07-01T16:44:21.628Z",
+    "updatedAt": "2026-07-15T16:22:11.374Z",
+    "__v": 0,
+    "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1784132530/photo_crm/cms/tl7yrbcwmzjr5fcp1huu.webp"
+  }
+];
+
 export default function Testimonials() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [testimonials, setTestimonials] = useState<any[]>([]);
@@ -14,23 +49,30 @@ export default function Testimonials() {
     getTestimonials()
       .then((data) => {
         const activeTestimonials = data.filter((t: any) => t.isActive);
-        setTestimonials(activeTestimonials);
+        if (activeTestimonials.length > 0) {
+          setTestimonials(activeTestimonials);
+        } else {
+          setTestimonials(FALLBACK_TESTIMONIALS);
+        }
       })
-      .catch((err) => console.error("Error loading testimonials:", err))
+      .catch((err) => {
+        console.error("Error loading testimonials:", err);
+        setTestimonials(FALLBACK_TESTIMONIALS);
+      })
       .finally(() => setLoading(false));
   }, []);
 
   const items = testimonials.length > 0
     ? testimonials.map((t: any) => ({
-        id: t._id,
-        quote: t.message,
-        clientName: t.name,
-        companyName: "Bespoke Collector",
-        role: "Verified Client",
-        imageUrl: t.image || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&h=400&q=85",
-        date: "Aesthetic Review",
-        rating: t.rating || 5
-      }))
+      id: t._id,
+      quote: t.message,
+      clientName: t.name,
+      companyName: "Bespoke Collector",
+      role: "Verified Client",
+      imageUrl: t.image || "https://cdn-icons-png.flaticon.com/512/6596/6596121.png",
+      date: "Aesthetic Review",
+      rating: t.rating || 5
+    }))
     : TESTIMONIALS_DATA.map(t => ({ ...t, rating: 5 }));
 
   const handleNext = () => {
@@ -55,7 +97,7 @@ export default function Testimonials() {
       </div>
 
       <div className="max-w-4xl mx-auto px-6 md:px-12 text-center relative z-10">
-        
+
         {/* Section Heading */}
         <div className="space-y-4 mb-16">
           <span className="text-gold-warm tracking-[0.3em] text-[10px] uppercase font-bold block">
@@ -89,11 +131,10 @@ export default function Testimonials() {
                 {Array.from({ length: 5 }, (_, i) => (
                   <Star
                     key={i}
-                    className={`w-4.5 h-4.5 ${
-                      i < current.rating
-                        ? "fill-gold-warm text-gold-warm"
-                        : "text-navy-dark/10"
-                    }`}
+                    className={`w-4.5 h-4.5 ${i < current.rating
+                      ? "fill-gold-warm text-gold-warm"
+                      : "text-navy-dark/10"
+                      }`}
                   />
                 ))}
               </div>
@@ -147,9 +188,8 @@ export default function Testimonials() {
                 id={`testimonial-dot-${index}`}
                 key={item.id}
                 onClick={() => setCurrentIndex(index)}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  index === currentIndex ? "w-6 bg-gold-warm" : "w-2 bg-navy-dark/20"
-                }`}
+                className={`h-2 rounded-full transition-all duration-300 ${index === currentIndex ? "w-6 bg-gold-warm" : "w-2 bg-navy-dark/20"
+                  }`}
                 aria-label={`Go to slide ${index + 1}`}
               />
             ))}

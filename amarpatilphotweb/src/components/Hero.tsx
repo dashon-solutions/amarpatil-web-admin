@@ -4,6 +4,23 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import { getBanners } from "../utils/api";
 import { formatHeading } from "../utils/text";
 
+const FALLBACK_BANNERS = [
+  {
+    "_id": "6a3c110c57b999849ad1ca4f",
+    "title": "Capture Life's Most Beautiful Moments",
+    "subtitle": "Turning Moments Into Art",
+    "slogan": "Every Picture Has a Story.",
+    "description": "We create stunning visual stories through creative photography, capturing authentic emotions, natural beauty, and unforgettable experiences.",
+    "mainImage": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782322896/photo_crm/cms/d6tzzqnfirwj03n1xbzd.webp",
+    "ctaText": "Book Now",
+    "ctaLink": "/contact",
+    "isActive": true,
+    "createdAt": "2026-06-24T17:17:00.785Z",
+    "updatedAt": "2026-07-09T07:23:56.948Z",
+    "__v": 0
+  }
+];
+
 export default function Hero() {
   const [banner, setBanner] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -14,9 +31,14 @@ export default function Hero() {
         const activeBanners = data.filter((b: any) => b.isActive);
         if (activeBanners.length > 0) {
           setBanner(activeBanners[0]);
+        } else {
+          setBanner(FALLBACK_BANNERS[0]);
         }
       })
-      .catch((err) => console.error("Error loading banner:", err))
+      .catch((err) => {
+        console.error("Error loading banner:", err);
+        setBanner(FALLBACK_BANNERS[0]);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -36,8 +58,8 @@ export default function Hero() {
           initial={{ scale: 1.12, opacity: 0 }}
           animate={{ scale: 1, opacity: 0.55 }}
           transition={{ duration: 2.5, ease: "easeOut" }}
-          src={banner?.mainImage || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1800&q=90"}
-          alt={banner?.title || "Amar Patil Photography Luxury Banner"}
+          src={banner?.mainImage || "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782322896/photo_crm/cms/d6tzzqnfirwj03n1xbzd.webp"}
+          alt={banner?.title || "Amar Patil Photography "}
           className="w-full h-full object-cover"
           referrerPolicy="no-referrer"
         />

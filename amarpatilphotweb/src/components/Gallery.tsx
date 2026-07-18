@@ -11,6 +11,524 @@ interface GalleryProps {
   isHomepage?: boolean;
 }
 
+const FALLBACK_CATEGORIES = [
+    {
+        "_id": "6a57b9e1cf32814c3c64e590",
+        "name": "Fashion",
+        "slug": "fashion",
+        "isActive": true,
+        "createdAt": "2026-07-15T16:48:33.080Z",
+        "updatedAt": "2026-07-15T16:48:33.080Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a57b9b2cf32814c3c64e58f",
+        "name": "Drone",
+        "slug": "drone",
+        "isActive": true,
+        "createdAt": "2026-07-15T16:47:46.215Z",
+        "updatedAt": "2026-07-15T16:47:46.215Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a57b9accf32814c3c64e58e",
+        "name": "Films",
+        "slug": "films",
+        "isActive": true,
+        "createdAt": "2026-07-15T16:47:40.908Z",
+        "updatedAt": "2026-07-15T16:47:40.908Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a57b9a4cf32814c3c64e58d",
+        "name": "Festivals & Traditions",
+        "slug": "festivals-traditions",
+        "isActive": true,
+        "createdAt": "2026-07-15T16:47:32.590Z",
+        "updatedAt": "2026-07-15T16:47:32.590Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a57b999cf32814c3c64e58c",
+        "name": "Commercial",
+        "slug": "commercial",
+        "isActive": true,
+        "createdAt": "2026-07-15T16:47:21.793Z",
+        "updatedAt": "2026-07-15T16:47:21.793Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a57b992cf32814c3c64e58b",
+        "name": "Events",
+        "slug": "events",
+        "isActive": true,
+        "createdAt": "2026-07-15T16:47:14.560Z",
+        "updatedAt": "2026-07-15T16:47:14.560Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a57b98ccf32814c3c64e58a",
+        "name": "Portraits",
+        "slug": "portraits",
+        "isActive": true,
+        "createdAt": "2026-07-15T16:47:08.746Z",
+        "updatedAt": "2026-07-15T16:47:08.746Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a57b7f9cf32814c3c64e586",
+        "name": "Pre-Weddings",
+        "slug": "pre-weddings",
+        "isActive": true,
+        "createdAt": "2026-07-15T16:40:25.433Z",
+        "updatedAt": "2026-07-15T16:40:25.433Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a3c12ac57b999849ad1ca52",
+        "name": "Engagements",
+        "slug": "engagement",
+        "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321834/photo_crm/cms/tzxnzippstujmrikyhbs.webp",
+        "isActive": true,
+        "createdAt": "2026-06-24T17:23:56.047Z",
+        "updatedAt": "2026-07-15T16:39:51.421Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a3c128c57b999849ad1ca51",
+        "name": "Weddings",
+        "slug": "wedding",
+        "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321803/photo_crm/cms/qayrk8f5c5mh8iodd1ib.webp",
+        "isActive": true,
+        "createdAt": "2026-06-24T17:23:24.050Z",
+        "updatedAt": "2026-07-15T16:39:38.056Z",
+        "__v": 0
+    }
+];
+
+const FALLBACK_GALLERIES = [
+    {
+        "_id": "6a3c138557b999849ad1ca67",
+        "title": "p&s",
+        "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782322052/photo_crm/cms/vcxld0zo1lrekwiebfep.webp",
+        "category": {
+            "_id": "6a3c128c57b999849ad1ca51",
+            "name": "Weddings",
+            "slug": "wedding",
+            "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321803/photo_crm/cms/qayrk8f5c5mh8iodd1ib.webp",
+            "isActive": true,
+            "createdAt": "2026-06-24T17:23:24.050Z",
+            "updatedAt": "2026-07-15T16:39:38.056Z",
+            "__v": 0
+        },
+        "isFeatured": false,
+        "isActive": true,
+        "createdAt": "2026-06-24T17:27:33.325Z",
+        "updatedAt": "2026-06-24T17:27:33.325Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a3c138257b999849ad1ca66",
+        "title": "monochrome",
+        "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782322049/photo_crm/cms/unmvn2bduurftf1i4cdx.webp",
+        "category": {
+            "_id": "6a3c128c57b999849ad1ca51",
+            "name": "Weddings",
+            "slug": "wedding",
+            "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321803/photo_crm/cms/qayrk8f5c5mh8iodd1ib.webp",
+            "isActive": true,
+            "createdAt": "2026-06-24T17:23:24.050Z",
+            "updatedAt": "2026-07-15T16:39:38.056Z",
+            "__v": 0
+        },
+        "isFeatured": false,
+        "isActive": true,
+        "createdAt": "2026-06-24T17:27:30.107Z",
+        "updatedAt": "2026-06-24T17:27:30.107Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a3c137e57b999849ad1ca65",
+        "title": "125A0491 copy",
+        "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782322045/photo_crm/cms/qix2ahcqxwezrld2qidm.webp",
+        "category": {
+            "_id": "6a3c128c57b999849ad1ca51",
+            "name": "Weddings",
+            "slug": "wedding",
+            "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321803/photo_crm/cms/qayrk8f5c5mh8iodd1ib.webp",
+            "isActive": true,
+            "createdAt": "2026-06-24T17:23:24.050Z",
+            "updatedAt": "2026-07-15T16:39:38.056Z",
+            "__v": 0
+        },
+        "isFeatured": false,
+        "isActive": true,
+        "createdAt": "2026-06-24T17:27:26.431Z",
+        "updatedAt": "2026-06-24T17:27:26.431Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a3c137957b999849ad1ca64",
+        "title": "125A0482",
+        "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782322040/photo_crm/cms/i6u54utr3usqnjqzb4ic.webp",
+        "category": {
+            "_id": "6a3c128c57b999849ad1ca51",
+            "name": "Weddings",
+            "slug": "wedding",
+            "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321803/photo_crm/cms/qayrk8f5c5mh8iodd1ib.webp",
+            "isActive": true,
+            "createdAt": "2026-06-24T17:23:24.050Z",
+            "updatedAt": "2026-07-15T16:39:38.056Z",
+            "__v": 0
+        },
+        "isFeatured": false,
+        "isActive": true,
+        "createdAt": "2026-06-24T17:27:21.610Z",
+        "updatedAt": "2026-06-24T17:27:21.610Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a3c137157b999849ad1ca63",
+        "title": "125A0482 copy",
+        "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782322032/photo_crm/cms/ulgqquponydf20ba1rh5.webp",
+        "category": {
+            "_id": "6a3c128c57b999849ad1ca51",
+            "name": "Weddings",
+            "slug": "wedding",
+            "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321803/photo_crm/cms/qayrk8f5c5mh8iodd1ib.webp",
+            "isActive": true,
+            "createdAt": "2026-06-24T17:23:24.050Z",
+            "updatedAt": "2026-07-15T16:39:38.056Z",
+            "__v": 0
+        },
+        "isFeatured": false,
+        "isActive": true,
+        "createdAt": "2026-06-24T17:27:13.358Z",
+        "updatedAt": "2026-06-24T17:27:13.358Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a3c136b57b999849ad1ca62",
+        "title": "125A0479",
+        "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782322026/photo_crm/cms/hty6swi1ondn1fghrhe1.webp",
+        "category": {
+            "_id": "6a3c128c57b999849ad1ca51",
+            "name": "Weddings",
+            "slug": "wedding",
+            "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321803/photo_crm/cms/qayrk8f5c5mh8iodd1ib.webp",
+            "isActive": true,
+            "createdAt": "2026-06-24T17:23:24.050Z",
+            "updatedAt": "2026-07-15T16:39:38.056Z",
+            "__v": 0
+        },
+        "isFeatured": false,
+        "isActive": true,
+        "createdAt": "2026-06-24T17:27:07.389Z",
+        "updatedAt": "2026-06-24T17:27:07.389Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a3c136557b999849ad1ca61",
+        "title": "125A0444 copy",
+        "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782322020/photo_crm/cms/bozsijzavojizrnaf4u1.webp",
+        "category": {
+            "_id": "6a3c128c57b999849ad1ca51",
+            "name": "Weddings",
+            "slug": "wedding",
+            "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321803/photo_crm/cms/qayrk8f5c5mh8iodd1ib.webp",
+            "isActive": true,
+            "createdAt": "2026-06-24T17:23:24.050Z",
+            "updatedAt": "2026-07-15T16:39:38.056Z",
+            "__v": 0
+        },
+        "isFeatured": false,
+        "isActive": true,
+        "createdAt": "2026-06-24T17:27:01.652Z",
+        "updatedAt": "2026-06-24T17:27:01.652Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a3c136057b999849ad1ca60",
+        "title": "125A0442 copy",
+        "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782322015/photo_crm/cms/h6elfv3ugj3vmqoz48j6.webp",
+        "category": {
+            "_id": "6a3c128c57b999849ad1ca51",
+            "name": "Weddings",
+            "slug": "wedding",
+            "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321803/photo_crm/cms/qayrk8f5c5mh8iodd1ib.webp",
+            "isActive": true,
+            "createdAt": "2026-06-24T17:23:24.050Z",
+            "updatedAt": "2026-07-15T16:39:38.056Z",
+            "__v": 0
+        },
+        "isFeatured": false,
+        "isActive": true,
+        "createdAt": "2026-06-24T17:26:56.793Z",
+        "updatedAt": "2026-06-24T17:26:56.793Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a3c135b57b999849ad1ca5f",
+        "title": "5M2A9242 copy",
+        "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782322010/photo_crm/cms/mcwdvevtzjpj5ppdlevm.webp",
+        "category": {
+            "_id": "6a3c128c57b999849ad1ca51",
+            "name": "Weddings",
+            "slug": "wedding",
+            "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321803/photo_crm/cms/qayrk8f5c5mh8iodd1ib.webp",
+            "isActive": true,
+            "createdAt": "2026-06-24T17:23:24.050Z",
+            "updatedAt": "2026-07-15T16:39:38.056Z",
+            "__v": 0
+        },
+        "isFeatured": false,
+        "isActive": true,
+        "createdAt": "2026-06-24T17:26:51.312Z",
+        "updatedAt": "2026-06-24T17:26:51.312Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a3c135757b999849ad1ca5e",
+        "title": "5M2A9201 copy",
+        "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782322006/photo_crm/cms/ykixys9ajwyutpuc3j8e.webp",
+        "category": {
+            "_id": "6a3c128c57b999849ad1ca51",
+            "name": "Weddings",
+            "slug": "wedding",
+            "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321803/photo_crm/cms/qayrk8f5c5mh8iodd1ib.webp",
+            "isActive": true,
+            "createdAt": "2026-06-24T17:23:24.050Z",
+            "updatedAt": "2026-07-15T16:39:38.056Z",
+            "__v": 0
+        },
+        "isFeatured": false,
+        "isActive": true,
+        "createdAt": "2026-06-24T17:26:47.411Z",
+        "updatedAt": "2026-06-24T17:26:47.411Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a3c135357b999849ad1ca5d",
+        "title": "5M2A9179 copy",
+        "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782322002/photo_crm/cms/f9u3psj5haujyooo4grr.webp",
+        "category": {
+            "_id": "6a3c128c57b999849ad1ca51",
+            "name": "Weddings",
+            "slug": "wedding",
+            "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321803/photo_crm/cms/qayrk8f5c5mh8iodd1ib.webp",
+            "isActive": true,
+            "createdAt": "2026-06-24T17:23:24.050Z",
+            "updatedAt": "2026-07-15T16:39:38.056Z",
+            "__v": 0
+        },
+        "isFeatured": false,
+        "isActive": true,
+        "createdAt": "2026-06-24T17:26:43.811Z",
+        "updatedAt": "2026-06-24T17:26:43.811Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a3c135057b999849ad1ca5c",
+        "title": "5M2A9165 copy",
+        "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321999/photo_crm/cms/vuwibvihqyzpdffjfimi.webp",
+        "category": {
+            "_id": "6a3c128c57b999849ad1ca51",
+            "name": "Weddings",
+            "slug": "wedding",
+            "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321803/photo_crm/cms/qayrk8f5c5mh8iodd1ib.webp",
+            "isActive": true,
+            "createdAt": "2026-06-24T17:23:24.050Z",
+            "updatedAt": "2026-07-15T16:39:38.056Z",
+            "__v": 0
+        },
+        "isFeatured": false,
+        "isActive": true,
+        "createdAt": "2026-06-24T17:26:40.246Z",
+        "updatedAt": "2026-06-24T17:26:40.246Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a3c134c57b999849ad1ca5b",
+        "title": "5M2A9163 copy",
+        "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321995/photo_crm/cms/wrsnksahnv0sxvvefjtj.webp",
+        "category": {
+            "_id": "6a3c128c57b999849ad1ca51",
+            "name": "Weddings",
+            "slug": "wedding",
+            "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321803/photo_crm/cms/qayrk8f5c5mh8iodd1ib.webp",
+            "isActive": true,
+            "createdAt": "2026-06-24T17:23:24.050Z",
+            "updatedAt": "2026-07-15T16:39:38.056Z",
+            "__v": 0
+        },
+        "isFeatured": false,
+        "isActive": true,
+        "createdAt": "2026-06-24T17:26:36.637Z",
+        "updatedAt": "2026-06-24T17:26:36.637Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a3c134957b999849ad1ca5a",
+        "title": "5M2A9159 copy",
+        "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321992/photo_crm/cms/xbofludg5hwanmnm7vjy.webp",
+        "category": {
+            "_id": "6a3c128c57b999849ad1ca51",
+            "name": "Weddings",
+            "slug": "wedding",
+            "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321803/photo_crm/cms/qayrk8f5c5mh8iodd1ib.webp",
+            "isActive": true,
+            "createdAt": "2026-06-24T17:23:24.050Z",
+            "updatedAt": "2026-07-15T16:39:38.056Z",
+            "__v": 0
+        },
+        "isFeatured": false,
+        "isActive": true,
+        "createdAt": "2026-06-24T17:26:33.190Z",
+        "updatedAt": "2026-06-24T17:26:33.190Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a3c12d057b999849ad1ca59",
+        "title": "5M2A6682 copy",
+        "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321871/photo_crm/cms/ttc3sgjollwbmev03whg.webp",
+        "category": {
+            "_id": "6a3c12ac57b999849ad1ca52",
+            "name": "Engagements",
+            "slug": "engagement",
+            "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321834/photo_crm/cms/tzxnzippstujmrikyhbs.webp",
+            "isActive": true,
+            "createdAt": "2026-06-24T17:23:56.047Z",
+            "updatedAt": "2026-07-15T16:39:51.421Z",
+            "__v": 0
+        },
+        "isFeatured": false,
+        "isActive": true,
+        "createdAt": "2026-06-24T17:24:32.278Z",
+        "updatedAt": "2026-06-24T17:24:32.278Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a3c12cd57b999849ad1ca58",
+        "title": "5M2A6670 copy",
+        "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321868/photo_crm/cms/g26xponyseldbedrbsq7.webp",
+        "category": {
+            "_id": "6a3c12ac57b999849ad1ca52",
+            "name": "Engagements",
+            "slug": "engagement",
+            "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321834/photo_crm/cms/tzxnzippstujmrikyhbs.webp",
+            "isActive": true,
+            "createdAt": "2026-06-24T17:23:56.047Z",
+            "updatedAt": "2026-07-15T16:39:51.421Z",
+            "__v": 0
+        },
+        "isFeatured": false,
+        "isActive": true,
+        "createdAt": "2026-06-24T17:24:29.075Z",
+        "updatedAt": "2026-06-24T17:24:29.075Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a3c12c957b999849ad1ca57",
+        "title": "5M2A6611 copy",
+        "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321864/photo_crm/cms/c7y9t9yqirzmlsavwolz.webp",
+        "category": {
+            "_id": "6a3c12ac57b999849ad1ca52",
+            "name": "Engagements",
+            "slug": "engagement",
+            "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321834/photo_crm/cms/tzxnzippstujmrikyhbs.webp",
+            "isActive": true,
+            "createdAt": "2026-06-24T17:23:56.047Z",
+            "updatedAt": "2026-07-15T16:39:51.421Z",
+            "__v": 0
+        },
+        "isFeatured": false,
+        "isActive": true,
+        "createdAt": "2026-06-24T17:24:25.525Z",
+        "updatedAt": "2026-06-24T17:24:25.525Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a3c12c757b999849ad1ca56",
+        "title": "5M2A6601",
+        "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321862/photo_crm/cms/g81msk7v2jhzaqa11r9d.webp",
+        "category": {
+            "_id": "6a3c12ac57b999849ad1ca52",
+            "name": "Engagements",
+            "slug": "engagement",
+            "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321834/photo_crm/cms/tzxnzippstujmrikyhbs.webp",
+            "isActive": true,
+            "createdAt": "2026-06-24T17:23:56.047Z",
+            "updatedAt": "2026-07-15T16:39:51.421Z",
+            "__v": 0
+        },
+        "isFeatured": false,
+        "isActive": true,
+        "createdAt": "2026-06-24T17:24:23.395Z",
+        "updatedAt": "2026-06-24T17:24:23.395Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a3c12c357b999849ad1ca55",
+        "title": "5M2A6590 copy",
+        "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321858/photo_crm/cms/wsigrwostumjxtzbqg8z.webp",
+        "category": {
+            "_id": "6a3c12ac57b999849ad1ca52",
+            "name": "Engagements",
+            "slug": "engagement",
+            "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321834/photo_crm/cms/tzxnzippstujmrikyhbs.webp",
+            "isActive": true,
+            "createdAt": "2026-06-24T17:23:56.047Z",
+            "updatedAt": "2026-07-15T16:39:51.421Z",
+            "__v": 0
+        },
+        "isFeatured": false,
+        "isActive": true,
+        "createdAt": "2026-06-24T17:24:19.220Z",
+        "updatedAt": "2026-06-24T17:24:19.220Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a3c12c157b999849ad1ca54",
+        "title": "5M2A6350 copy",
+        "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321856/photo_crm/cms/iipbf5fqtisoehv72ygd.webp",
+        "category": {
+            "_id": "6a3c12ac57b999849ad1ca52",
+            "name": "Engagements",
+            "slug": "engagement",
+            "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321834/photo_crm/cms/tzxnzippstujmrikyhbs.webp",
+            "isActive": true,
+            "createdAt": "2026-06-24T17:23:56.047Z",
+            "updatedAt": "2026-07-15T16:39:51.421Z",
+            "__v": 0
+        },
+        "isFeatured": false,
+        "isActive": true,
+        "createdAt": "2026-06-24T17:24:17.294Z",
+        "updatedAt": "2026-06-24T17:24:17.294Z",
+        "__v": 0
+    },
+    {
+        "_id": "6a3c12bd57b999849ad1ca53",
+        "title": "5M2A6343 copy",
+        "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321852/photo_crm/cms/ofohpd6gbzapmcztpjoz.webp",
+        "category": {
+            "_id": "6a3c12ac57b999849ad1ca52",
+            "name": "Engagements",
+            "slug": "engagement",
+            "image": "https://res.cloudinary.com/dh8rylu0t/image/upload/v1782321834/photo_crm/cms/tzxnzippstujmrikyhbs.webp",
+            "isActive": true,
+            "createdAt": "2026-06-24T17:23:56.047Z",
+            "updatedAt": "2026-07-15T16:39:51.421Z",
+            "__v": 0
+        },
+        "isFeatured": false,
+        "isActive": true,
+        "createdAt": "2026-06-24T17:24:13.457Z",
+        "updatedAt": "2026-06-24T17:24:13.457Z",
+        "__v": 0
+    }
+];
+
 export default function Gallery({ isHomepage = false }: GalleryProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [activeImageIndex, setActiveImageIndex] = useState<number | null>(null);
@@ -21,13 +539,25 @@ export default function Gallery({ isHomepage = false }: GalleryProps) {
   useEffect(() => {
     Promise.all([getCategories(), getGalleries()])
       .then(([categoriesRes, galleriesRes]) => {
-        const activeCats = categoriesRes.filter((c: any) => c.isActive).map((c: any) => c.name);
+        let activeCats = categoriesRes.filter((c: any) => c.isActive).map((c: any) => c.name);
+        if (activeCats.length === 0) {
+          activeCats = FALLBACK_CATEGORIES.filter((c: any) => c.isActive).map((c: any) => c.name);
+        }
         setDynamicCategories(["All", ...activeCats]);
 
-        const activeGals = galleriesRes.filter((g: any) => g.isActive);
+        let activeGals = galleriesRes.filter((g: any) => g.isActive);
+        if (activeGals.length === 0) {
+          activeGals = FALLBACK_GALLERIES.filter((g: any) => g.isActive);
+        }
         setDynamicGalleries(activeGals);
       })
-      .catch((err) => console.error("Error loading gallery data:", err));
+      .catch((err) => {
+        console.error("Error loading gallery data:", err);
+        const activeCats = FALLBACK_CATEGORIES.filter((c: any) => c.isActive).map((c: any) => c.name);
+        setDynamicCategories(["All", ...activeCats]);
+        const activeGals = FALLBACK_GALLERIES.filter((g: any) => g.isActive);
+        setDynamicGalleries(activeGals);
+      });
   }, []);
 
   const mappedItems: GalleryItem[] = dynamicGalleries.map((item: any) => ({
