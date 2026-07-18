@@ -68,7 +68,7 @@ export default function ContactForm() {
     <section id="contact" className="py-24 md:py-32 bg-white relative">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-20">
-          
+
           {/* Left Column: Coordinates and Information */}
           <div className="lg:col-span-5 space-y-10">
             <div className="space-y-4">
@@ -183,7 +183,7 @@ export default function ContactForm() {
                   </motion.div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
-                    
+
                     {errorMessage && (
                       <div className="border-l-4 border-amber-600 bg-amber-50 text-amber-900 p-4 font-primary text-xs">
                         {errorMessage}
@@ -275,10 +275,8 @@ export default function ContactForm() {
                         </>
                       )}
                     </button>
-                    
-                    <p className="text-[9px] text-center text-navy-dark/45 mt-4 leading-relaxed font-primary">
-                      By submitting this secure manifest, you consent to our privacy architecture and our bespoke non-disclosure arrangements regarding client-held designs.
-                    </p>
+
+
 
                   </form>
                 )}

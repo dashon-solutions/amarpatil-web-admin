@@ -114,7 +114,7 @@ export const GALLERY_DATA: GalleryItem[] = [
 export const STAT_CARDS: StatCard[] = [
   {
     value: "8+",
-    label: "Years of Heritage",
+    label: "Years of Photography",
     description: "Delivering exceptional creativity and premium design services since 2018."
   },
   {

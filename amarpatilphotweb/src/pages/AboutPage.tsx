@@ -68,7 +68,7 @@ export default function AboutPage() {
       <PageHero
         title="Our Philosophy"
         slogan="THE ART OF OBSERVATION"
-        subtitle="ABOUT AMAR PATIL"
+        subtitle="ABOUT AMAR PATIL PHOTOGRAPHY"
         description="A legacy of custom craftsmanship, uncompromised standards, and quiet luxury in visual journalism."
         bgImage="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&w=1800&q=85"
       />
@@ -84,7 +84,7 @@ export default function AboutPage() {
               OUR GUIDING PRINCIPLES
             </span>
             <h2 className="text-3xl sm:text-4xl font-secondary font-bold text-navy-dark">
-              {formatHeading("Atelier Philosophy")}
+              {formatHeading("Photography Philosophy")}
             </h2>
             <div className="h-[1.5px] w-20 bg-gold-warm mx-auto pt-1" />
           </div>
@@ -158,7 +158,7 @@ export default function AboutPage() {
                       {member.name}
                     </h3>
                     <p className="text-navy-dark/70 text-xs sm:text-sm font-primary font-light leading-relaxed">
-                      {member.notes || "Professional curator and collaborative visual partner at the Amar Patil Atelier."}
+                      {member.notes || "Professional curator and collaborative visual partner at Amar Patil Photography."}
                     </p>
                   </div>
                 </motion.div>

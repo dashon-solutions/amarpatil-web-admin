@@ -78,13 +78,13 @@ export default function Story({ isHomepage = false }: StoryProps) {
 
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center">
-          
+
           {/* Left Column: Beautiful Media Cover */}
           <div className="lg:col-span-5 relative order-2 lg:order-1">
             {/* Elegant multi-layer frames like a fashion layout */}
             <div className="absolute -inset-4 border border-gold-warm/20 pointer-events-none" />
             <div className="absolute inset-0 border border-navy-dark/10 pointer-events-none translate-x-2 translate-y-2" />
-            
+
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -109,17 +109,17 @@ export default function Story({ isHomepage = false }: StoryProps) {
 
           {/* Right Column: Narrative Copy */}
           <div className="lg:col-span-7 flex flex-col space-y-8 order-1 lg:order-2">
-            
+
             {/* Header section with Navy/Gold contrasted words */}
             <div className="space-y-4">
               <span className="text-gold-warm tracking-[0.3em] text-[10px] uppercase font-bold block">
                 AN UNSETTLED QUEST FOR PURITY
               </span>
-              
+
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-secondary font-bold tracking-tight text-navy-dark">
                 {story ? formatHeading(story.title) : formatHeading(`Our Story *${STORY_DATA.subtitle}*`)}
               </h2>
-              
+
               {/* Elegant dual-color ornamental line indicator */}
               <div className="flex items-center space-x-2 pt-2">
                 <div className="h-[2px] w-12 bg-navy-dark" />
@@ -141,11 +141,22 @@ export default function Story({ isHomepage = false }: StoryProps) {
                 return <p key={idx}>{para}</p>;
               })}
               <p className="text-xs tracking-wider uppercase opacity-75 font-semibold text-navy-dark flex items-center space-x-2">
-                <span>Monte Carlo</span>
-                <span className="text-gold-warm">•</span>
-                <span>London</span>
-                <span className="text-gold-warm">•</span>
-                <span>Tokyo</span>
+                {story?.locations?.length ? (
+                  story.locations.map((loc: string, i: number) => (
+                    <span key={i} className="flex items-center space-x-2">
+                      <span>{loc}</span>
+                      {i < story.locations.length - 1 && <span className="text-gold-warm ml-2">•</span>}
+                    </span>
+                  ))
+                ) : (
+                  <>
+                    <span>Monte Carlo</span>
+                    <span className="text-gold-warm">•</span>
+                    <span>London</span>
+                    <span className="text-gold-warm">•</span>
+                    <span>Tokyo</span>
+                  </>
+                )}
               </p>
 
               {isHomepage && story && (
@@ -163,12 +174,18 @@ export default function Story({ isHomepage = false }: StoryProps) {
             {/* Additional Editorial citation block mimicking print publication */}
             <div className="border-t border-navy-dark/10 pt-6 mt-4 flex items-center justify-between">
               <div>
-                <p className="text-[10px] uppercase tracking-widest text-navy-dark/40">Editorial Source</p>
-                <p className="text-xs font-secondary font-semibold text-navy-dark">Aesthetic Integrity Reports, Vol. 14</p>
+                <p className="text-[10px] uppercase tracking-widest text-navy-dark/40">
+                  {story ? 'Story Category' : 'Editorial Source'}
+                </p>
+                <p className="text-xs font-secondary font-semibold text-navy-dark">
+                  {story?.category || 'Wedding Story'}
+                </p>
               </div>
               <div className="text-right">
-                <p className="text-[10px] uppercase tracking-widest text-navy-dark/40">Status Code</p>
-                <p className="text-xs font-mono font-medium text-gold-warm">CERTIFIED MASTERCLASS</p>
+                <p className="text-[10px] uppercase tracking-widest text-navy-dark/40">Publication Status</p>
+                <p className="text-xs font-mono font-medium text-gold-warm">
+                  {story ? (story.status || 'FEATURED NARRATIVE') : 'CERTIFIED MASTERCLASS'}
+                </p>
               </div>
             </div>
 
