@@ -10,6 +10,7 @@ module.exports = {
     domains: [
       "amarpatil-web-admin-q7qq.vercel.app",
       "amarpatil-web-admin.vercel.app",
+      "studio.dashonsolutions.com",
       "dashonsolutions.com",
     ],
     MONGODB_URI: "mongodb+srv://clientdeskteam_db_user:WDcf17sFy2efzPEq@amarpatilfinal.bzkt5bn.mongodb.net",
@@ -28,7 +29,10 @@ module.exports = {
     domains: [
       "amarpatil2admin.vercel.app",
       "amarpatilwebsite2.vercel.app",
-      "skymotiontest.vercel.app" // Add website domains here
+      "skymotiontest.vercel.app",
+      "studioskymotion.dashonsolutions.com",
+      "studioskymoto.dashonsolutions.com",
+      "studioskymoto.dashonsolution.com",
     ],
     MONGODB_URI: "mongodb+srv://dashrathbshinde:dashrath@cluster0.xgxtuqr.mongodb.net/skymotionphotography-portfolio",
     ADMIN_EMAIL: "amarp.team@gmail.com",
