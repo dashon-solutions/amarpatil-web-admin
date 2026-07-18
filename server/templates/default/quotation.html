@@ -8,9 +8,29 @@
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap');
 
     :root {
-      --wine: {{colors.primary}};
-      --wine-deep: {{colors.secondary}};
-      --gold: {{colors.accent}};
+      --wine: {
+          {
+          colors.primary
+        }
+      }
+
+      ;
+
+      --wine-deep: {
+          {
+          colors.secondary
+        }
+      }
+
+      ;
+
+      --gold: {
+          {
+          colors.accent
+        }
+      }
+
+      ;
       --gold-soft:#D8BD86;
       --ivory:#FBF7F0;
       --blush:#F3E4E2;
@@ -27,7 +47,6 @@
     body {
       margin: 0;
       padding: 0;
-      height: 100%;
     }
 
     body {
@@ -36,9 +55,6 @@
       color: var(--ink);
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
     }
 
     .page {
@@ -293,9 +309,10 @@
       font-weight: 600;
       color: var(--ink);
       text-align: right;
-    }
-
-    /* ---------- Table ---------- */
+      max-width: 65%;
+      word-break: break-word;
+      white-space: normal;
+    }/* ---------- Table ---------- */
     table.items {
       width: 100%;
       border-collapse: collapse;
@@ -696,9 +713,9 @@
 
         <!-- HEADER -->
         <div class="header">
-          {{#if logoUrl}}
+          {{#if logo}}
           <div class="brand-logo-wrap">
-            <img src="{{logoUrl}}" alt="Logo" class="brand-logo">
+            <img src="{{logo}}" alt="Logo" class="brand-logo">
           </div>
           {{else}}
           <div class="logo-mark">
