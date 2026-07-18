@@ -34,9 +34,9 @@ export default function AboutUs() {
   const paragraphs = about?.description
     ? about.description.split("\n\n").filter(Boolean)
     : [
-        "We are a multi-disciplinary design and editorial firm curated to elevate premium brands. Inspired by architectural balance and classic typography, we orchestrate experiences that cultivate trust and command premium authority.",
-        "Our philosophy honors four core milestones of creation: absolute structural experience, patient materials craftsmanship, uncompromised raw quality check, and modern aesthetic innovation."
-      ];
+      "We are a multi-disciplinary design and editorial firm curated to elevate premium brands. Inspired by architectural balance and classic typography, we orchestrate experiences that cultivate trust and command premium authority.",
+      "Our philosophy honors four core milestones of creation: absolute structural experience, patient materials craftsmanship, uncompromised raw quality check, and modern aesthetic innovation."
+    ];
 
   const title = about?.title || "About Us";
   const imageUrl = about?.image || "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=85";
@@ -52,12 +52,12 @@ export default function AboutUs() {
 
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center">
-          
+
           {/* Left Column: Professional Brand Image */}
           <div className="lg:col-span-5 relative order-2 lg:order-1">
             <div className="absolute top-4 right-4 bottom-4 left-4 border border-gold-warm/25 pointer-events-none z-10" />
             <div className="absolute -inset-4 border border-navy-dark/10 pointer-events-none" />
-            
+
             <motion.div
               initial={{ opacity: 0, scale: 0.97 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -66,7 +66,7 @@ export default function AboutUs() {
               className="relative aspect-4/5 md:aspect-3/4 lg:aspect-4/5 overflow-hidden shadow-2xl bg-navy-dark/5 rounded-xs"
             >
               <img
-                src={imageUrl}
+                src='/amru_patil.jpg'
                 alt={title}
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
@@ -124,7 +124,7 @@ export default function AboutUs() {
                   <div className="absolute top-4 right-4 opacity-15">
                     {getSubIcon(index)}
                   </div>
-                  
+
                   <div>
                     <span className="block font-secondary text-3xl md:text-4xl font-extrabold text-navy-dark tracking-tight">
                       {stat.value}
