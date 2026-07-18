@@ -21,7 +21,7 @@ export default function Accolades() {
   ];
 
   return (
-    <section id="branding-identity" className="bg-white py-24 border-t border-b border-navy-dark/5">
+    <section id="branding-identity" className="bg-white py-12 border-t border-b border-navy-dark/5">
       <div className="max-w-7xl mx-auto px-6 md:px-12 text-center">
         {/* Elegant typography header */}
         <div className="space-y-4 mb-20">

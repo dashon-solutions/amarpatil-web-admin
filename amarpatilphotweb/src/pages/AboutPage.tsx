@@ -77,7 +77,7 @@ export default function AboutPage() {
       <AboutUs />
 
       {/* Section 2: Core Philosophy */}
-      <section className="py-24 bg-[#0E4F44]/5 border-t border-b border-navy-dark/5">
+      <section className="py-12 bg-[#0E4F44]/5 border-t border-b border-navy-dark/5">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <div className="space-y-4 mb-16 text-center max-w-2xl mx-auto">
             <span className="text-gold-warm tracking-[0.3em] text-[10px] uppercase font-bold block">
@@ -116,7 +116,7 @@ export default function AboutPage() {
 
       {/* Section 3: Our Team (Renders dynamically based on SHOW_TEAM_FLAG and API data presence) */}
       {showTeam && teamMembers.length > 0 && (
-        <section className="py-24 bg-white">
+        <section className="py-12 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-12">
             <div className="space-y-4 mb-16 text-center max-w-2xl mx-auto">
               <span className="text-gold-warm tracking-[0.3em] text-[10px] uppercase font-bold block">

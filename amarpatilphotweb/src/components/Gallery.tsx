@@ -621,7 +621,7 @@ export default function Gallery({ isHomepage = false }: GalleryProps) {
   const activeImage: GalleryItem | null = activeImageIndex !== null ? displayItems[activeImageIndex] : null;
 
   return (
-    <section id="gallery" className="py-24 md:py-32 bg-white">
+    <section id="gallery" className="py-12 md:py-16 bg-white">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         
         {/* Header section with sophisticated typography */}

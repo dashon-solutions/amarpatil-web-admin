@@ -34,7 +34,7 @@ export default function StoriesPage() {
         bgImage={heroImage}
       />
 
-      <div className="max-w-7xl mx-auto px-6 md:px-12 py-24">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 py-12">
         {loading ? (
           <div className="text-center py-20 text-navy-dark/40 font-bold uppercase tracking-widest animate-pulse">
             Curating Stories...

@@ -90,7 +90,7 @@ export default function Testimonials() {
   }
 
   return (
-    <section id="testimonials" className="py-24 md:py-32 bg-white relative overflow-hidden border-t border-b border-navy-dark/5">
+    <section id="testimonials" className="py-12 md:py-16 bg-white relative overflow-hidden border-t border-b border-navy-dark/5">
       {/* Absolute Decorative Golden Quote Mark Backdrop */}
       <div className="absolute right-12 top-10 text-gold-warm/5 select-none pointer-events-none hidden lg:block">
         <Quote className="w-96 h-96 transform rotate-180" />

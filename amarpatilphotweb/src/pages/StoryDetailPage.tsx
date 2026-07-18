@@ -83,7 +83,7 @@ export default function StoryDetailPage() {
         bgImage={story.mainImage}
       />
 
-      <div className="max-w-7xl mx-auto px-6 md:px-12 py-24">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 py-12">
         {/* Back navigation link */}
         <div className="mb-12">
           <Link

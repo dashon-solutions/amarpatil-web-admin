@@ -68,7 +68,7 @@ export default function Story({ isHomepage = false }: StoryProps) {
   const imageUrl = story?.mainImage || STORY_DATA.imageUrl;
 
   return (
-    <section id="story" className="relative py-24 md:py-32 bg-white overflow-hidden border-t border-navy-dark/5">
+    <section id="story" className="relative py-12 md:py-16 bg-white overflow-hidden border-t border-navy-dark/5">
       {/* Editorial Watermark background */}
       <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none select-none hidden xl:block opacity-5">
         <span className="text-[14vw] font-secondary font-extrabold text-navy-dark tracking-widest writing-vertical uppercase">

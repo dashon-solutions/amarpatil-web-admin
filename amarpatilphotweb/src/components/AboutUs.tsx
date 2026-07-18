@@ -42,7 +42,7 @@ export default function AboutUs() {
   const imageUrl = about?.image || "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=85";
 
   return (
-    <section id="about" className="py-24 md:py-32 bg-white relative overflow-hidden border-t border-navy-dark/5">
+    <section id="about" className="py-12 md:py-16 bg-white relative overflow-hidden border-t border-navy-dark/5">
       {/* Editorial Watermark background */}
       <div className="absolute left-6 bottom-12 pointer-events-none select-none hidden xl:block opacity-5">
         <span className="text-[12vw] font-secondary font-black text-navy-dark tracking-[0.2em] leading-none uppercase">
