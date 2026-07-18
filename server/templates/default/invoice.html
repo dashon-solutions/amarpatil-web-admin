@@ -59,18 +59,17 @@
 
     .page {
       width: 210mm;
-      min-height: 297mm;
       background: var(--ivory);
       position: relative;
       padding: 12px;
       box-sizing: border-box;
+      margin: 0 auto;
     }
 
     .frame {
       border: 1.2px solid var(--gold);
       padding: 0;
       position: relative;
-      min-height: 285mm;
       display: flex;
       flex-direction: column;
     }
@@ -168,6 +167,7 @@
 
     .brand-block {
       flex: 1;
+      max-width: 60%;
     }
 
     .brand-name {
@@ -193,6 +193,8 @@
       font-size: 9px;
       line-height: 1.55;
       color: var(--ink-soft);
+      max-width: 40%;
+      word-break: break-word;
     }
 
     .brand-contact strong {
@@ -275,7 +277,7 @@
     }
 
     .info-card {
-      background: var(--blush);
+      /* background: var(--blush); */
       border-left: 2.5px solid var(--wine);
       padding: 8px 12px;
     }
@@ -573,7 +575,13 @@
 
         <!-- HEADER -->
         <div class="header">
-          {{#if logo}}
+          {{#if qrCode}}
+          <div class="qr-wrap">
+            <div class="qr-box">
+              <img src="{{qrCode}}" alt="Payment QR">
+            </div>
+          </div>
+          {{else if logo}}
           <div class="brand-logo-wrap">
             <img src="{{logo}}" alt="Logo" class="brand-logo">
           </div>
@@ -682,11 +690,11 @@
         <div class="sign-area">
           <p class="thanks">Thank you for letting us capture your story.</p>
           <div class="stamp-sign">
-            {{#if signatureUrl}}
-            <img src="{{signatureUrl}}" alt="Signature" class="signature-img">
+            {{#if signature}}
+            <img src="{{signature}}" alt="Signature" class="signature-img">
             {{/if}}
-            {{#if stampUrl}}
-            <img src="{{stampUrl}}" alt="Stamp" class="stamp-img">
+            {{#if stamp}}
+            <img src="{{stamp}}" alt="Stamp" class="stamp-img">
             {{else}}
             <div class="stamp-circle">Studio<br>Seal</div>
             {{/if}}
