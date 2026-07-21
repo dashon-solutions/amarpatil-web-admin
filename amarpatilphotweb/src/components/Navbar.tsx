@@ -57,7 +57,7 @@ export default function Navbar() {
             className="flex items-center space-x-1 group"
           >
             {settings?.logo ? (
-              <img src={settings.logo} alt="Logo" className="h-[50px] w-[300px] object-cover mr-2" />
+              <img src={settings.logo} alt="Logo" className="h-[50px] w-[300px] object-contain mr-2" />
             ) : null}
 
 

@@ -37,7 +37,7 @@ export default function Footer() {
           {/* Logo container */}
           <div className="mb-1">
             {settings?.logo ? (
-              <img src={settings.logo} alt="Logo" className="h-[50px] w-[300px] object-cover mr-2" />
+              <img src={settings.logo} alt="Logo" className="h-[50px] w-[300px] object-contain mr-2" />
             ) : (
               <span className="font-secondary text-xl font-bold tracking-widest text-white">
                 {settings?.businessName || "ATELIER"}
