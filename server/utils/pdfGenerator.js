@@ -1,22 +1,38 @@
 const PDFDocument = require("pdfkit");
 const https = require("https");
 const http = require("http");
+const sharp = require("sharp");
 
 // --- UTILITIES ---
 
-const fetchImage = (url) => {
-  return new Promise((resolve, reject) => {
-    if (!url) return reject(new Error("No URL provided"));
-    const client = url.startsWith("https") ? https : http;
-    client.get(url, (res) => {
-      if (res.statusCode !== 200) {
-        return reject(new Error(`Failed to fetch image: ${res.statusCode}`));
-      }
-      const data = [];
-      res.on("data", (chunk) => data.push(chunk));
-      res.on("end", () => resolve(Buffer.concat(data)));
-    }).on("error", reject);
-  });
+const fetchImage = async (url) => {
+  if (!url) throw new Error("No URL provided");
+
+  let buffer;
+  if (typeof fetch !== "undefined") {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Failed to fetch image: ${res.status}`);
+    const arrayBuffer = await res.arrayBuffer();
+    buffer = Buffer.from(arrayBuffer);
+  } else {
+    buffer = await new Promise((resolve, reject) => {
+      const client = url.startsWith("https") ? https : http;
+      client.get(url, (res) => {
+        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+          return fetchImage(res.headers.location).then(resolve).catch(reject);
+        }
+        if (res.statusCode !== 200) {
+          return reject(new Error(`Failed to fetch image: ${res.statusCode}`));
+        }
+        const data = [];
+        res.on("data", (chunk) => data.push(chunk));
+        res.on("end", () => resolve(Buffer.concat(data)));
+      }).on("error", reject);
+    });
+  }
+
+  // Convert all images to PNG so PDFKit can handle WebP, AVIF, etc.
+  return sharp(buffer).png().toBuffer();
 };
 
 const COLORS = {
@@ -32,15 +48,15 @@ const drawDivider = (doc, y, width = 515) => {
   const midX = 40 + width / 2;
   doc.lineWidth(0.5).strokeColor(COLORS.accent);
   doc.moveTo(40, y).lineTo(midX - 10, y).stroke();
-  
+
   // Draw small diamond
   doc.fillColor(COLORS.accent);
   doc.moveTo(midX, y - 3)
-     .lineTo(midX + 3, y)
-     .lineTo(midX, y + 3)
-     .lineTo(midX - 3, y)
-     .fill();
-     
+    .lineTo(midX + 3, y)
+    .lineTo(midX, y + 3)
+    .lineTo(midX - 3, y)
+    .fill();
+
   doc.strokeColor(COLORS.accent);
   doc.moveTo(midX + 10, y).lineTo(40 + width, y).stroke();
 };
@@ -56,8 +72,11 @@ const drawSectionTitle = (doc, title, x, y) => {
 // --- DRAWING BLOCKS ---
 
 const drawHeader = async (doc, settings) => {
+  // Draw full width background for header
+  doc.rect(0, 0, 595.28, 110).fill(COLORS.primary);
+
   let leftY = 45;
-  
+
   // Logo
   if (settings.logo && settings.logo.startsWith("http")) {
     try {
@@ -65,30 +84,26 @@ const drawHeader = async (doc, settings) => {
       doc.image(logoBuffer, 40, 40, { height: 40 });
       leftY = 80;
     } catch (err) {
-      doc.fillColor(COLORS.primary).font("Times-Bold").fontSize(20).text(settings.businessName || "STUDIO PRO", 40, 45, { width: 250 });
+      doc.fillColor("#FFFFFF").font("Times-Bold").fontSize(20).text(settings.businessName || "STUDIO PRO", 40, 45, { width: 250 });
       leftY = doc.y;
     }
   } else {
-    doc.fillColor(COLORS.primary).font("Times-Bold").fontSize(20).text(settings.businessName || "STUDIO PRO", 40, 45, { width: 250 });
+    doc.fillColor("#FFFFFF").font("Times-Bold").fontSize(20).text(settings.businessName || "STUDIO PRO", 40, 45, { width: 250 });
     leftY = doc.y;
   }
 
   // Right side contact
-  doc.fillColor(COLORS.textLight).font("Helvetica").fontSize(8);
+  doc.fillColor("#EEEEEE").font("Helvetica").fontSize(8);
   const addressText = settings.contact?.address || "Address Not Available";
   doc.text(addressText, 300, 45, { align: "right", width: 255 });
-  
-  doc.fillColor(COLORS.textDark).font("Helvetica-Bold").fontSize(9);
+
+  doc.fillColor("#FFFFFF").font("Helvetica-Bold").fontSize(9);
   const phoneVal = settings.contact?.phone || "";
   const phone = phoneVal ? (phoneVal.startsWith("+") ? phoneVal : `+91 ${phoneVal}`) : "";
   const email = settings.contact?.email || "";
   doc.text(`${phone}  ·  ${email}`, 300, doc.y + 5, { align: "right", width: 255 });
-  
-  const rightY = doc.y;
 
-  const dividerY = Math.max(leftY, rightY) + 15;
-  drawDivider(doc, dividerY);
-  return dividerY + 15;
+  return 130;
 };
 
 const drawTitleBlock = (doc, startY, docTitle, docNo, dateStr, validStr) => {
@@ -98,21 +113,21 @@ const drawTitleBlock = (doc, startY, docTitle, docNo, dateStr, validStr) => {
 
   // Right: Meta
   doc.fontSize(8);
-  
+
   // Number
   doc.fillColor(COLORS.textLight).font("Helvetica").text("NO. ", 350, startY, { align: "right", width: 100 });
   doc.fillColor(COLORS.textDark).font("Helvetica-Bold").text(docNo, 450, startY, { align: "right", width: 105 });
-  
+
   // Date
   doc.fillColor(COLORS.textLight).font("Helvetica").text("DATE ", 350, startY + 12, { align: "right", width: 100 });
   doc.fillColor(COLORS.textDark).font("Helvetica-Bold").text(dateStr, 450, startY + 12, { align: "right", width: 105 });
-  
+
   // Valid
   if (validStr) {
     doc.fillColor(COLORS.textLight).font("Helvetica").text("VALID UNTIL ", 350, startY + 24, { align: "right", width: 100 });
     doc.fillColor(COLORS.textDark).font("Helvetica-Bold").text(validStr, 450, startY + 24, { align: "right", width: 105 });
   }
-  
+
   doc.moveDown(3);
   const dividerY = Math.max(doc.y, startY + 50);
   drawDivider(doc, dividerY);
@@ -121,7 +136,7 @@ const drawTitleBlock = (doc, startY, docTitle, docNo, dateStr, validStr) => {
 
 const drawInfoBoxes = (doc, startY, clientObj, shootObj) => {
   const boxWidth = 250;
-  
+
   const drawBox = (x, y, title, data) => {
     // First calculate height
     let tempY = y + 35;
@@ -135,10 +150,10 @@ const drawInfoBoxes = (doc, startY, clientObj, shootObj) => {
     doc.rect(x, y, boxWidth, calculatedBoxHeight).fill(COLORS.bgLight);
     // Top border
     doc.rect(x, y, boxWidth, 4).fill(COLORS.primary);
-    
+
     // Title
     doc.fillColor(COLORS.primary).font("Helvetica-Bold").fontSize(9).text(title, x + 15, y + 15, { characterSpacing: 1 });
-    
+
     // Content
     let textY = y + 35;
     data.forEach(row => {
@@ -168,83 +183,83 @@ const drawInfoBoxes = (doc, startY, clientObj, shootObj) => {
 const drawScopeBox = (doc, startY, shootType, scopeList, deliverablesList) => {
   let y = drawSectionTitle(doc, "Scope of Services & Deliverables", 43, startY);
   y += 10;
-  
+
   // Header
   doc.rect(40, y, 515, 20).fill(COLORS.primary);
   doc.fillColor("#FFFFFF").font("Helvetica-Bold").fontSize(10).text(`${shootType || "Event"} Coverage Specifications`, 50, y + 5);
-  
+
   y += 20;
   const boxStartY = y;
-  
+
   // We need to calculate height based on content. For now we will just assume fixed width and draw text.
   let scopeY = y + 10;
   let delivY = y + 10;
 
   doc.fillColor(COLORS.primary).font("Helvetica-Bold").fontSize(9).text("SCOPE OF SERVICES", 50, scopeY, { characterSpacing: 1 });
   doc.text("DELIVERABLES", 305, delivY, { characterSpacing: 1 });
-  
+
   scopeY += 15;
   delivY += 15;
-  
+
   doc.fillColor(COLORS.textDark).font("Helvetica").fontSize(8);
-  
+
   scopeList.forEach(item => {
     doc.fillColor(COLORS.accent).text("•", 50, scopeY);
     doc.fillColor(COLORS.textDark).text(item, 60, scopeY, { width: 220 });
     scopeY = doc.y + 5;
   });
-  
+
   deliverablesList.forEach(item => {
     doc.fillColor(COLORS.accent).text("•", 305, delivY);
     doc.fillColor(COLORS.textDark).text(item, 315, delivY, { width: 220 });
     delivY = doc.y + 5;
   });
-  
+
   const boxHeight = Math.max(scopeY, delivY) - boxStartY + 10;
-  
+
   // Draw background (need to do this behind the text technically, but pdfkit doesn't have z-index.
   // We should have calculated height first. To fix this, we draw a rect, but we can't overdraw.
   // Let's just draw the border around it instead.
   doc.lineWidth(1).strokeColor(COLORS.bgLight);
   doc.rect(40, boxStartY, 515, boxHeight).fillAndStroke(COLORS.bgLight, COLORS.bgLight);
-  
+
   // Redraw text over background
   scopeY = boxStartY + 10;
   delivY = boxStartY + 10;
   doc.fillColor(COLORS.primary).font("Helvetica-Bold").fontSize(9).text("SCOPE OF SERVICES", 50, scopeY, { characterSpacing: 1 });
   doc.text("DELIVERABLES", 305, delivY, { characterSpacing: 1 });
-  
+
   scopeY += 15;
   delivY += 15;
-  
+
   doc.font("Helvetica").fontSize(8);
   scopeList.forEach(item => {
     doc.fillColor(COLORS.accent).text("•", 50, scopeY);
     doc.fillColor(COLORS.textDark).text(item, 60, scopeY, { width: 220 });
     scopeY = doc.y + 5;
   });
-  
+
   deliverablesList.forEach(item => {
     doc.fillColor(COLORS.accent).text("•", 305, delivY);
     doc.fillColor(COLORS.textDark).text(item, 315, delivY, { width: 220 });
     delivY = doc.y + 5;
   });
-  
+
   return boxStartY + boxHeight + 20;
 };
 
 const drawTable = (doc, startY, items, subtotal, totalAmount) => {
   let y = startY;
-  
+
   // Header
   doc.rect(40, y, 515, 20).fill(COLORS.primary);
   doc.fillColor("#FFFFFF").font("Helvetica-Bold").fontSize(9);
   doc.text("#", 50, y + 6);
   doc.text("ITEM / SERVICE", 80, y + 6);
   doc.text("AMOUNT (Rs.)", 450, y + 6, { width: 95, align: "right" });
-  
+
   y += 20;
-  
+
   // Rows
   doc.font("Helvetica").fontSize(9);
   items.forEach((item, index) => {
@@ -254,44 +269,44 @@ const drawTable = (doc, startY, items, subtotal, totalAmount) => {
     } else {
       doc.rect(40, y, 515, 25).fill("#FFFFFF");
     }
-    
+
     doc.fillColor(COLORS.textLight).text((index + 1).toString(), 50, y + 8);
     doc.fillColor(COLORS.textDark).text(item.title, 80, y + 8, { width: 350 });
     doc.fillColor(COLORS.textDark).font("Helvetica-Bold").text(`${Number(item.price).toFixed(2)}`, 450, y + 8, { width: 95, align: "right" });
     doc.font("Helvetica");
-    
+
     y += 25;
-    
+
     // Bottom border
     doc.lineWidth(0.5).strokeColor("#EEEEEE").moveTo(40, y).lineTo(555, y).stroke();
   });
-  
+
   y += 15;
-  
+
   // Subtotal
   doc.fillColor(COLORS.textLight).font("Helvetica").fontSize(9).text("Subtotal", 350, y, { width: 100, align: "right" });
   doc.fillColor(COLORS.textDark).text(`Rs. ${Number(subtotal).toFixed(2)}`, 450, y, { width: 95, align: "right" });
-  
+
   y += 20;
-  
+
   // Total Block
   doc.rect(380, y, 175, 25).fill(COLORS.primary);
   doc.fillColor("#FFFFFF").font("Helvetica-Bold").fontSize(11).text("Total Amount", 390, y + 7);
   doc.text(`Rs. ${Number(totalAmount).toFixed(2)}`, 450, y + 7, { width: 95, align: "right" });
-  
+
   return y + 45;
 };
 
 const drawTermsAndBank = async (doc, startY, terms, bankObj, qrCodeUrl) => {
   let y = startY;
-  
+
   // Draw titles
   drawSectionTitle(doc, "Terms & Conditions", 43, y);
   drawSectionTitle(doc, "Payment Details", 308, y);
-  
+
   y += 15;
   const contentY = y;
-  
+
   // Terms
   doc.fillColor(COLORS.textLight).font("Helvetica").fontSize(8);
   let termY = contentY;
@@ -300,14 +315,14 @@ const drawTermsAndBank = async (doc, startY, terms, bankObj, qrCodeUrl) => {
     doc.text(term, 55, termY, { width: 235 });
     termY = doc.y + 4;
   });
-  
+
   // Bank Details Box
   const boxX = 305;
   const boxWidth = 250;
-  const boxHeight = 110;
-  
+  const boxHeight = Math.max(90, terms.length * 12); // Dynamic or fixed height
+
   doc.rect(boxX, contentY, boxWidth, boxHeight).fill(COLORS.bgLight);
-  
+
   let bY = contentY + 10;
   const bankRows = [
     { label: "Account Name", value: bankObj.accountName || "—" },
@@ -316,25 +331,19 @@ const drawTermsAndBank = async (doc, startY, terms, bankObj, qrCodeUrl) => {
     { label: "IFSC Code", value: bankObj.ifscCode || "—" },
     { label: "UPI ID", value: bankObj.upiId || "—" }
   ];
-  
+
   bankRows.forEach(row => {
     doc.fillColor(COLORS.textLight).font("Helvetica").fontSize(8).text(row.label, boxX + 10, bY);
-    doc.fillColor(COLORS.textDark).font("Helvetica-Bold").text(row.value, boxX + 80, bY, { width: boxWidth - 90, align: "right" });
-    bY += 12;
+    doc.fillColor(COLORS.textDark).font("Helvetica-Bold").text(row.value, boxX + 70, bY, { width: boxWidth - 80 - (qrCodeUrl ? 50 : 0), align: "right" });
+    bY += 14;
   });
-  
-  // QR Code Area
-  doc.lineWidth(0.5).strokeColor(COLORS.border).moveTo(boxX + 10, bY + 5).lineTo(boxX + boxWidth - 10, bY + 5).stroke();
-  bY += 15;
-  
-  doc.fillColor(COLORS.textDark).font("Helvetica-Bold").fontSize(7).text("Scan to Pay", boxX + 60, bY);
-  doc.fillColor(COLORS.textLight).font("Helvetica").text("Scan this QR code using any UPI app.", boxX + 60, bY + 10, { width: 180 });
-  
+
   if (qrCodeUrl && qrCodeUrl.startsWith("http")) {
     try {
       const qrBuffer = await fetchImage(qrCodeUrl);
-      doc.image(qrBuffer, boxX + 10, bY, { width: 40, height: 40 });
-    } catch(err) {
+      doc.image(qrBuffer, boxX + boxWidth - 55, contentY + 10, { width: 45, height: 45 });
+      doc.fillColor(COLORS.textDark).font("Helvetica-Bold").fontSize(6).text("Scan to Pay", boxX + boxWidth - 65, contentY + 60, { width: 65, align: "center" });
+    } catch (err) {
       // fallback
     }
   }
@@ -343,36 +352,43 @@ const drawTermsAndBank = async (doc, startY, terms, bankObj, qrCodeUrl) => {
 };
 
 const drawGlobalFooter = async (doc, y, settings) => {
+  if (y > 680) {
+    doc.addPage();
+    y = 40;
+  } else {
+    y += 20; // Reduced space from bank details
+  }
+
   // Line
   doc.lineWidth(0.5).strokeColor(COLORS.border).moveTo(40, y).lineTo(555, y).stroke();
-  
+
   y += 10;
-  
+
   // Left text
   doc.fillColor(COLORS.primary).font("Times-BoldItalic").fontSize(10)
-     .text("With gratitude, for capturing your forever.", 40, y + 20);
-     
+    .text("With gratitude, for capturing your forever.", 40, y + 20);
+
   // Right Signature
   if (settings.signature && settings.signature.startsWith("http")) {
     try {
       const sigBuffer = await fetchImage(settings.signature);
-      doc.image(sigBuffer, 420, y - 15, { height: 40 });
-    } catch(err){}
+      doc.image(sigBuffer, 420, y, { height: 40 });
+    } catch (err) { }
   }
-  
+
   if (settings.stamp && settings.stamp.startsWith("http")) {
     try {
       const stampBuffer = await fetchImage(settings.stamp);
-      doc.image(stampBuffer, 480, y - 25, { height: 50 });
-    } catch(err){}
+      doc.image(stampBuffer, 480, y, { height: 50 });
+    } catch (err) { }
   }
-  
-  doc.lineWidth(1).strokeColor(COLORS.textDark).moveTo(420, y + 30).lineTo(555, y + 30).stroke();
-  doc.fillColor(COLORS.textLight).font("Helvetica").fontSize(8).text("Authorized Signatory", 420, y + 35, { width: 135, align: "center" });
-  
+
+  doc.lineWidth(1).strokeColor(COLORS.textDark).moveTo(420, y + 55).lineTo(555, y + 55).stroke();
+  doc.fillColor(COLORS.textLight).font("Helvetica").fontSize(8).text("Authorized Signatory", 420, y + 60, { width: 135, align: "center" });
+
   // Absolute bottom text
   doc.fillColor(COLORS.textLight).font("Helvetica-Bold").fontSize(6)
-     .text(`${(settings.businessName || "STUDIO PRO").toUpperCase()} - THIS IS A COMPUTER GENERATED DOCUMENT`, 40, 800, { align: "center", width: 515, characterSpacing: 1 });
+    .text(`${(settings.businessName || "STUDIO PRO").toUpperCase()} - THIS IS A COMPUTER GENERATED DOCUMENT`, 40, 790, { align: "center", width: 515, characterSpacing: 1 });
 };
 
 // --- MAIN EXPORTS ---
@@ -392,13 +408,13 @@ const generateQuotationPDF = async (quotation, settings) => {
       }
 
       let y = await drawHeader(doc, settings);
-      
+
       const docTitle = quotation.leadId?.shootType ? `${quotation.leadId.shootType} Photography Quotation` : "Photography Quotation";
-      const validUntil = new Date(new Date(quotation.createdAt).getTime() + 30*24*60*60*1000).toLocaleDateString("en-IN", {day: "2-digit", month: "2-digit", year: "numeric"});
-      
+      const validUntil = new Date(new Date(quotation.createdAt).getTime() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", { day: "2-digit", month: "2-digit", year: "numeric" });
+
       y = drawTitleBlock(doc, y, docTitle, quotation.quotationNumber, new Date(quotation.createdAt).toLocaleDateString("en-IN"), validUntil);
-      
-      y = drawInfoBoxes(doc, y, 
+
+      y = drawInfoBoxes(doc, y,
         { name: quotation.leadId?.name, phone: quotation.leadId?.phone, email: quotation.leadId?.email },
         { type: quotation.leadId?.shootType, date: quotation.leadId?.eventDate ? new Date(quotation.leadId.eventDate).toLocaleDateString() : "", venue: quotation.leadId?.venue }
       );
@@ -421,13 +437,8 @@ const generateQuotationPDF = async (quotation, settings) => {
       }
 
       y = await drawTermsAndBank(doc, y, termsList, settings.bankDetails || {}, settings.qrCode);
-      
-      if (y > 720) {
-        doc.addPage();
-        y = 40;
-      }
-      
-      await drawGlobalFooter(doc, 750, settings);
+
+      await drawGlobalFooter(doc, y, settings);
 
       doc.end();
     } catch (e) {
@@ -450,52 +461,47 @@ const generateInvoicePDF = async (invoice, booking, payments, settings) => {
       }
 
       let y = await drawHeader(doc, settings);
-      
+
       const docTitle = "Payment Invoice & Receipt";
       y = drawTitleBlock(doc, y, docTitle, invoice.invoiceNumber, new Date(invoice.date).toLocaleDateString("en-IN"), null);
-      
-      y = drawInfoBoxes(doc, y, 
+
+      y = drawInfoBoxes(doc, y,
         { name: booking.clientName, phone: booking.leadId?.phone, email: booking.leadId?.email },
         { type: booking.shootType, date: booking.eventDate ? new Date(booking.eventDate).toLocaleDateString() : "", venue: booking.leadId?.venue }
       );
 
       // Format payments as items for the table
-      let paymentsToDisplay = [payments[payments.length - 1]]; 
+      let paymentsToDisplay = [payments[payments.length - 1]];
       if (invoice.type === "Final") {
-        paymentsToDisplay = payments; 
+        paymentsToDisplay = payments;
       }
 
       const items = paymentsToDisplay.map(p => ({
         title: `Payment: ${p.type} (${new Date(p.date || new Date()).toLocaleDateString()}) - Method: ${p.method || 'N/A'}`,
         price: p.amount
       }));
-      
+
       const totalPaid = paymentsToDisplay.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
 
       y = drawTable(doc, y, items, totalPaid, totalPaid);
-      
+
       // Add Remaining balance text under table
       doc.fillColor(COLORS.textDark).font("Helvetica-Bold").fontSize(10);
       doc.text(`Total Project Cost: Rs. ${Number(booking.totalAmount || 0).toFixed(2)}`, 380, y, { width: 175, align: "right" });
       const remainingBalance = (booking.totalAmount || 0) - payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
       doc.fillColor(COLORS.primary).text(`Remaining Balance: Rs. ${remainingBalance.toFixed(2)}`, 380, y + 15, { width: 175, align: "right" });
-      
+
       y += 40;
 
       if (y > 600) {
         doc.addPage();
-        y = 40;
+        y = 20;
       }
 
       const termsList = settings.termsAndConditions || ["Thank you for your business."];
       y = await drawTermsAndBank(doc, y, termsList, settings.bankDetails || {}, settings.qrCode);
-      
-      if (y > 720) {
-        doc.addPage();
-        y = 40;
-      }
-      
-      await drawGlobalFooter(doc, 750, settings);
+
+      await drawGlobalFooter(doc, y, settings);
 
       doc.end();
     } catch (e) {
