@@ -64,8 +64,8 @@ export default function Hero() {
           referrerPolicy="no-referrer"
         />
         {/* Soft luxury linear overlay blend */}
-        <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/15 to-transparent" />
-        <div className="absolute inset-0 bg-black/40" />
+        {/* <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/15 to-transparent" />
+        <div className="absolute inset-0 bg-black/20" /> */}
       </div>
 
 
